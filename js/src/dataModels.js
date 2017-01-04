@@ -59,7 +59,7 @@ Reuters.Graphics.DataSeriesModel = Backbone.Model.extend({
 			var currentValue = parseFloat(currentItemInLoop.get(name));
 			var change, percent;
 			if(previousItem){
-				var previousValue = 0
+				var previousValue = currentValue
 				if (previousItem.get(name)){
     				previousValue = parseFloat(previousItem.get(name).value);    				
 				}

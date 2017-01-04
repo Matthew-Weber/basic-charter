@@ -4,19 +4,6 @@
 	window["Reuters"]["Graphics"]["basicCharter"] = window["Reuters"]["Graphics"]["basicCharter"] || {};
 	window["Reuters"]["Graphics"]["basicCharter"]["Template"] = window["Reuters"]["Graphics"]["basicCharter"]["Template"] || {};
 
-	window["Reuters"]["Graphics"]["basicCharter"]["Template"]["basictemplate"] = function (t) {
-		var __t,
-		    __p = '';
-		__p += '';
-		return __p;
-	};
-})();
-(function () {
-	window["Reuters"] = window["Reuters"] || {};
-	window["Reuters"]["Graphics"] = window["Reuters"]["Graphics"] || {};
-	window["Reuters"]["Graphics"]["basicCharter"] = window["Reuters"]["Graphics"]["basicCharter"] || {};
-	window["Reuters"]["Graphics"]["basicCharter"]["Template"] = window["Reuters"]["Graphics"]["basicCharter"]["Template"] || {};
-
 	window["Reuters"]["Graphics"]["basicCharter"]["Template"]["chartTemplate"] = function (t) {
 		var __t,
 		    __p = '',
@@ -337,7 +324,7 @@ Reuters.Graphics.DataSeriesModel = Backbone.Model.extend({
 			var currentValue = parseFloat(currentItemInLoop.get(name));
 			var change, percent;
 			if (previousItem) {
-				var previousValue = 0;
+				var previousValue = currentValue;
 				if (previousItem.get(name)) {
 					previousValue = parseFloat(previousItem.get(name).value);
 				}

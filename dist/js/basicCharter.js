@@ -109,9 +109,14 @@
 		__p += '\n';
 		t.data.forEach(function (d, i) {
 			;
-			__p += '\n		<div class="tipHolder">\n			<div class=\'circleTip ' + ((__t = t.self.chartType) == null ? '' : __t) + '\' style=\'background-color:';
-			print(t.self.colorScale(d.name));
-			__p += ';\'></div>\n			<div class=\'nameTip\'>' + ((__t = d.displayName) == null ? '' : __t) + '</div>\n			<div class=\'valueTip\'>\n				';
+			__p += '\n		<div class="tipHolder">\n			';
+			if (t.data.length > 1) {
+				;
+				__p += '\n				<div class=\'circleTip ' + ((__t = t.self.chartType) == null ? '' : __t) + '\' style=\'background-color:';
+				print(t.self.colorScale(d.name));
+				__p += ';\'></div>\n				<div class=\'nameTip\'>' + ((__t = d.displayName) == null ? '' : __t) + '</div>\n			';
+			};
+			__p += '\n			<div class=\'valueTip\'>\n				';
 			if (t.self.chartLayout == "stackPercent") {
 				;
 				__p += '\n					';

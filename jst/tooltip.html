@@ -5,8 +5,10 @@
 <%}%>
 <%t.data.forEach(function(d,i){%>
 		<div class="tipHolder">
-			<div class='circleTip <%=t.self.chartType%>' style='background-color:<% print(t.self.colorScale(d.name))%>;'></div>
-			<div class='nameTip'><%=d.displayName%></div>
+			<%if(t.data.length > 1){%>
+				<div class='circleTip <%=t.self.chartType%>' style='background-color:<% print(t.self.colorScale(d.name))%>;'></div>
+				<div class='nameTip'><%=d.displayName%></div>
+			<%}%>
 			<div class='valueTip'>
 				<%if (t.self.chartLayout == "stackPercent"){%>
 					<%print(t.self.tipNumbFormat(d.y1Percent - d.y0Percent))%>				

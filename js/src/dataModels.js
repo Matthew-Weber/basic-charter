@@ -88,26 +88,34 @@ Reuters.Graphics.DateSeriesCollection = Backbone.Collection.extend({
 		});
 	},
 	
-	comparator: function (item){
+	comparator: function comparator(item) {
 		var self = this;
 		var name = item.get("name");
-		var lastItem = item.get("values").last();
+		var lastItem;
 		// for time series, is going to be last value
-		var valueForSort = lastItem.get(name)[self.dataType];
+
+		for (index = item.get("values").length-1; index > 0; index --){
+			if (item.get("values").at(index).get(name)[self.dataType]){
+				lastItem = item.get("values").at(index)
+				break
+			}
+		}
+		var valueForSort = lastItem.get(name)[self.dataType];			
+
 		//if categories, find greatest value for each
-		if (lastItem.get("category")){
-			valueForSort = item.get("values")
-				.max(function(d){
-					return d.get(name)[self.dataType];
-				})
-				.get(name)[self.dataType];
+		if (lastItem.get("category")) {
+			valueForSort = item.get("values").max(function (d) {
+				return d.get(name)[self.dataType];
+			}).get(name)[self.dataType];
 		}
 
 		var plusMinus = 1;
-		if (Array.isArray(self.groupSort)){
+		if (Array.isArray(self.groupSort)) {
 			return self.groupSort.indexOf(name);
 		}
-		if (self.groupSort == "descending"){plusMinus = -1;}
+		if (self.groupSort == "descending") {
+			plusMinus = -1;
+		}
 		return plusMinus * valueForSort;
 	},
 	

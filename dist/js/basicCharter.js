@@ -361,9 +361,17 @@ Reuters.Graphics.DateSeriesCollection = Backbone.Collection.extend({
 	comparator: function comparator(item) {
 		var self = this;
 		var name = item.get("name");
-		var lastItem = item.get("values").last();
+		var lastItem;
 		// for time series, is going to be last value
+
+		for (index = item.get("values").length - 1; index > 0; index--) {
+			if (item.get("values").at(index).get(name)[self.dataType]) {
+				lastItem = item.get("values").at(index);
+				break;
+			}
+		}
 		var valueForSort = lastItem.get(name)[self.dataType];
+
 		//if categories, find greatest value for each
 		if (lastItem.get("category")) {
 			valueForSort = item.get("values").max(function (d) {

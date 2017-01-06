@@ -29,7 +29,7 @@
 		__p += '\n';
 		if (t.self.navSpacer) {
 			;
-			__p += '\n	<div class="chart-nav">\n		<div class="navContainer"></div>\n	</div>\n';
+			__p += '\n	<div class="chart-nav">\n		<div class="navContainer spacer"></div>\n	</div>\n';
 		};
 		__p += '\n\n';
 		if (t.self.chartLayoutLables) {

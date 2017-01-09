@@ -717,7 +717,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 					return legendData[0].category;
 				}
 				if (legendData[0].quarters){
-                    return legendData[0].quarters;
+                    return legendData[0].quarters + legendData[0].displayDate;
                 }				
 				return legendData[0].displayDate;				
 			});

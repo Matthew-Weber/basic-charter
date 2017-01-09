@@ -1,8 +1,11 @@
-<%if (t.data[0].displayDate){%>
-<div class='dateTip'> <%=t.data[0].displayDate%> </div>
+<%if (t.data[0].quarters){%>
+	<div class='dateTip'> <%=t.data[0].quarters%> <%=t.data[0].displayDate%> </div>
+<%}else if (t.data[0].displayDate){%>
+	<div class='dateTip'> <%=t.data[0].displayDate%> </div>
 <%}else{%>
-<div class='dateTip'> <%=t.data[0].category%> </div>
+	<div class='dateTip'> <%=t.data[0].category%> </div>
 <%}%>
+
 <%t.data.forEach(function(d,i){%>
 		<div class="tipHolder">
 			<%if(t.data.length > 1){%>

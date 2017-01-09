@@ -99,14 +99,17 @@
 			__p += __j.call(arguments, '');
 		}
 
-		if (t.data[0].displayDate) {
+		if (t.data[0].quarters) {
 			;
-			__p += '\n<div class=\'dateTip\'> ' + ((__t = t.data[0].displayDate) == null ? '' : __t) + ' </div>\n';
+			__p += '\n	<div class=\'dateTip\'> ' + ((__t = t.data[0].quarters) == null ? '' : __t) + ' ' + ((__t = t.data[0].displayDate) == null ? '' : __t) + ' </div>\n';
+		} else if (t.data[0].displayDate) {
+			;
+			__p += '\n	<div class=\'dateTip\'> ' + ((__t = t.data[0].displayDate) == null ? '' : __t) + ' </div>\n';
 		} else {
 			;
-			__p += '\n<div class=\'dateTip\'> ' + ((__t = t.data[0].category) == null ? '' : __t) + ' </div>\n';
+			__p += '\n	<div class=\'dateTip\'> ' + ((__t = t.data[0].category) == null ? '' : __t) + ' </div>\n';
 		};
-		__p += '\n';
+		__p += '\n\n';
 		t.data.forEach(function (d, i) {
 			;
 			__p += '\n		<div class="tipHolder">\n			';
@@ -1184,7 +1187,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 					return legendData[0].category;
 				}
 				if (legendData[0].quarters) {
-					return legendData[0].quarters;
+					return legendData[0].quarters + legendData[0].displayDate;
 				}
 				return legendData[0].displayDate;
 			});

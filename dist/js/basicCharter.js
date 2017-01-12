@@ -1432,7 +1432,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 
 		var ticksWidth = 0;
 		$("#" + self.targetDiv + " .x.axis .tick").find("text").each(function (d) {
-			ticksWidth += $(this).width();
+			ticksWidth += $(this).width() + 5;
 		});
 		if (self.tickAll) {
 			self[self.xOrY + "Axis"].tickValues(self.fullDateDomain);

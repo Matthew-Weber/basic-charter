@@ -1793,7 +1793,7 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			"clip-path": "url(#clip" + self.targetDiv + ")",
 			class: "lineChart",
 			id: function id(d) {
-				return self.targetDiv + d.name + "-line";
+				return self.targetDiv + d.displayName.replace(/\s/g, '') + "-line";
 			}
 		}).on("mouseover", function (d) {
 			//put the line we've hovered on on top=
@@ -2230,7 +2230,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 		self.barChart = self.svg.selectAll(".barChart").data(self.jsonData, function (d) {
 			return d.name;
 		}).enter().append("g").attr("clip-path", "url(#clip" + self.targetDiv + ")").attr("class", "barChart").attr('id', function (d) {
-			return self.targetDiv + d.name + "-bar";
+			return self.targetDiv + d.displayName.replace(/\s/g, '') + "-bar";
 		});
 
 		if (self.chartLayout == "sideBySide") {

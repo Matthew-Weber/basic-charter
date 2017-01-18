@@ -183,7 +183,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			.enter().append("g")
 		  	.attr("clip-path", "url(#clip" + self.targetDiv + ")")
 			.attr("class", "barChart")
-			.attr('id',function(d){ return self.targetDiv + d.name + "-bar"; });
+			.attr('id',function(d){ return self.targetDiv + d.displayName.replace(/\s/g, '') + "-bar"; });
 		
 		if (self.chartLayout == "sideBySide"){
 			self.barChart.attr("transform", function(d,i){

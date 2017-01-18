@@ -95,7 +95,7 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 			.attr({
 				"clip-path":"url(#clip" + self.targetDiv + ")",
 				class: "lineChart",
-				id:function(d){ return self.targetDiv + d.name + "-line"; }
+				id:function(d){return self.targetDiv + d.displayName.replace(/\s/g, '') + "-line"; }
 			})
 			.on("mouseover", function (d){			
 				//put the line we've hovered on on top=

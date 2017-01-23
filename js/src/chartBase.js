@@ -483,7 +483,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		}	
 
 		if (self.hasTimeScale || self.options.xTickFormat){
-			self.xAxis.tickFormat(self.xTickFormat);
+			self[self.xOrY+"Axis"].tickFormat(self.xTickFormat);
 		}	
 
 
@@ -494,7 +494,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 
 		//define the tick format if it's specified, change tick length if it's horizontal
 		if (self.yTickFormat){
-			self.yAxis.tickFormat(self.yTickFormat);
+			self[self.yOrX+"Axis"].tickFormat(self.yTickFormat);
 		}
 		if (!self.horizontal){
 			self.yAxis.tickSize(0-self.width);

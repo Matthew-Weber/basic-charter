@@ -368,7 +368,7 @@ Reuters.Graphics.DateSeriesCollection = Backbone.Collection.extend({
 		// for time series, is going to be last value
 
 		for (index = item.get("values").length - 1; index > 0; index--) {
-			if (item.get("values").at(index).get(name)[self.dataType]) {
+			if (!isNaN(parseFloat(item.get("values").at(index).get(name)[self.dataType]))) {
 				lastItem = item.get("values").at(index);
 				break;
 			}

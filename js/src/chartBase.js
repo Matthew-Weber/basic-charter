@@ -404,6 +404,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 
 		if (!self.options.margin){
 			self.margin = {top:15, right: 20, bottom: 30, left:9 +  maxWidth};
+			if (self.orient == "right"){
+				self.margin = {top:15, left: 20, bottom: 30, right:9 +  maxWidth};				
+			}
 		}
 
 		self.width = this.$chartEl.width() - self.margin.left - self.margin.right;			
@@ -466,6 +469,11 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		    .ticks(self[self.yOrX+"ScaleTicks"])
 		    .tickPadding(8);
 
+		if (self.orient == "right"){
+			self.yAxis
+			.orient("right")
+		}
+
 		//change the tic size if it's sideways    
 		if (self.horizontal){
 			self.xAxis.tickSize(0 - self.height).tickPadding(12);
@@ -515,7 +523,12 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		self.svg.append("svg:g")
 		    .attr("class", "y axis");			
 	    self.svg.select(".y.axis")
+        	.attr("transform", function(d){
+	        	if (self.orient == "right")
+	        	return "translate("+self.width+",0)"	        	
+        	})
 	    	.call(self.yAxis); 
+
 
 		self.adjustXTicks();
 
@@ -1084,6 +1097,10 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		self.svg.select(".y.axis")
 			.transition()
 			.duration(duration)
+        	.attr("transform", function(d){
+	        	if (self.orient == "right")
+	        	return "translate("+self.width+",0)"	        	
+        	})			
 			.call(self.yAxis)
 			.each("end", function(d){
 				if (self.updateCount === 0){

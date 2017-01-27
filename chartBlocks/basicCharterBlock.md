@@ -1,9 +1,10 @@
 //full block
+
 		Reuters.Graphics.sharePrice = new Reuters.Graphics.LineChart({
 			el: "#reutersGraphic-chart1",
 			dataURL: '//d3sl9l9bcxfb5q.cloudfront.net/json/mw-disney-earns',
 // 			dataURL:"data/data.csv",
-			height:.5, //if < 10 - ratio , if over 10 - hard height.  undefined - square
+			height:220, //if < 10 - ratio , if over 10 - hard height.  undefined - square
 //			columnNames:{sandp:gettext("S&P 500"), disney:gettext("Disney")}, // undefined uses sheet headers, object will map, array matches columnNamesDisplay
 //			colors: [blue3, purple3,orange3, red3,yellow3],  //array or mapped object
 //			dataType:'value',//value, changePreMonth, CumulativeChange, percentChange, cumulate
@@ -17,7 +18,7 @@
 //			columnNamesDisplay:[gettext("Bob"),gettext("Jerry")], // only use this if you are using an array for columnNames
 //			colorUpDown:true,
 //			hasLegend: false,
-			showTip:true,
+//			showTip:true,
 //			yScaleVals: [0,100],
 //			tickAll:true, //if you make tickAll anything, it will put a tick for each point.
 //			horizontal:true,
@@ -42,6 +43,7 @@
 //			multiDataLabels:[gettext("VALUE"),gettext("PERCENT")],
 //			chartLayout:"stackPercent", // basic,stackTotal, stackPercent, fillLines, sideBySide, onTopOf,
 //			chartLayoutLables:["stackPercent", "basic","stackTotal","fillLines"], //define this, and buttons appear
+//			orient:"right",
 //			yTickFormat:function(d){
 //				var numbFormat = d3.format(".2f")
 //				return numbFormat(d)
@@ -56,6 +58,7 @@
 //			legendTemplate: Reuters.Graphics.Template.legendTemplate,
 //			timelineTemplate:Reuters.Graphics.Template.tooltipTimeline,		
 		});
+
 
 
 //simple blocks

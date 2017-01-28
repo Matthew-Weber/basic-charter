@@ -364,10 +364,11 @@ Reuters.Graphics.DateSeriesCollection = Backbone.Collection.extend({
 	comparator: function comparator(item) {
 		var self = this;
 		var name = item.get("name");
-		var lastItem;
+		var lastItem = item.get("values").last();
 		// for time series, is going to be last value
 
-		for (index = item.get("values").length - 1; index > 0; index--) {
+
+		for (index = item.get("values").length - 1; index > -1; index--) {
 			if (!isNaN(parseFloat(item.get("values").at(index).get(name)[self.dataType]))) {
 				lastItem = item.get("values").at(index);
 				break;

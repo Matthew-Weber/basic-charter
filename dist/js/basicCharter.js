@@ -367,7 +367,9 @@ Reuters.Graphics.DateSeriesCollection = Backbone.Collection.extend({
 		var lastItem = item.get("values").last();
 		// for time series, is going to be last value
 
-
+		if (self.groupSort == "none") {
+			return;
+		}
 		for (index = item.get("values").length - 1; index > -1; index--) {
 			if (!isNaN(parseFloat(item.get("values").at(index).get(name)[self.dataType]))) {
 				lastItem = item.get("values").at(index);
@@ -417,6 +419,9 @@ Reuters.Graphics.DateSeriesCollection = Backbone.Collection.extend({
 		var plusMinus = 1;
 		if (self.categorySort == "descending") {
 			plusMinus = -1;
+		}
+		if (self.categorySort == "none") {
+			return;
 		}
 
 		item.last().get("values").models.sort(function (a, b) {

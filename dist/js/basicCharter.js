@@ -907,7 +907,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		if (!self.options.margin) {
 			self.margin = { top: 15, right: 20, bottom: 30, left: 9 + maxWidth };
 			if (self.orient == "right") {
-				self.margin = { top: 15, left: 20, bottom: 30, right: 9 + maxWidth };
+				self.margin = { top: 15, left: 5, bottom: 30, right: 20 + maxWidth };
 			}
 		}
 
@@ -964,7 +964,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		self.yAxis = d3.svg.axis().scale(self.scales[self.yOrX]).orient("left").ticks(self[self.yOrX + "ScaleTicks"]).tickPadding(8);
 
 		if (self.orient == "right") {
-			self.yAxis.orient("right");
+			self.yAxis.orient("right").tickPadding(20);
 		}
 
 		//change the tic size if it's sideways    

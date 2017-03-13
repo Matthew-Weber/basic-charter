@@ -1251,7 +1251,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			var timeFormatter = d3.time.format("%m/%d/%Y");
 			var matchingValues = d.get("values").filter(function (d) {
 				if (self.hasTimeScale) {
-					return timeFormatter(d.get(xDataType)) == timeFormatter(self.closestData);
+					return self.dateFormat(d.get(xDataType)) == self.dateFormat(self.closestData);
 				}
 				return d.get(xDataType) == self.closestData;
 			});

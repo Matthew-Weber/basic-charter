@@ -2351,8 +2351,8 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			return d.name;
 		}).selectAll(".bar").data(function (d) {
 			return d.values;
-		}).transition().duration(1000).style("fill", function (d) {
-			return self.barFill(d);
+		}).transition().duration(1000).style("fill", function (d, i) {
+			return self.barFill(d, i);
 		}).attr(self.yOrX, function (d) {
 			return self.yBarPosition(d);
 		}).attr(self.heightOrWidth, function (d) {
@@ -2373,8 +2373,8 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 
 		self.barChart.selectAll(".bar").data(function (d) {
 			return d.values;
-		}).enter().append("rect").attr("class", "bar").style("fill", function (d) {
-			return self.barFill(d);
+		}).enter().append("rect").attr("class", "bar").style("fill", function (d, i) {
+			return self.barFill(d, i);
 		}).attr(self.heightOrWidth, 0).attr(self.yOrX, self.scales.y(0)).attr(self.widthOrHeight, function (d, i, j) {
 			return self.barWidth(d, i, j);
 		}).attr(self.xOrY, function (d, i, j) {

@@ -145,7 +145,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 		}
 	},
 	
-	barFill:function (d){
+	barFill:function (d,i){
 		var self = this;
 		if (self.colorUpDown){
 			if (d[self.dataType] > 0){
@@ -208,7 +208,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			.data(function(d) {return d.values;})
 			.enter().append("rect")
 			.attr("class", "bar")
-			.style("fill", function(d){ return self.barFill(d); })
+			.style("fill", function(d,i){ return self.barFill(d,i); })
 			.attr(self.heightOrWidth, 0)
 			.attr(self.yOrX, self.scales.y(0))
 			.attr(self.widthOrHeight, function(d,i,j){ return self.barWidth(d,i,j); }) 

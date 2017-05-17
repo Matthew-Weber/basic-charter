@@ -331,6 +331,7 @@ Reuters.Graphics.DataSeriesModel = Backbone.Model.extend({
 			var previousItem = self.get("values").at(self.get("values").indexOf(currentItemInLoop) - 1);
 			var currentValue = parseFloat(currentItemInLoop.get(name));
 			var change, percent;
+			//previousItem.get(name).value ?????
 			if (previousItem) {
 				var previousValue = currentValue;
 				if (previousItem.get(name)) {
@@ -1213,6 +1214,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		self.tooltip.style({
 			opacity: 1
 		});
+		self.trigger("tooltipMover:end");
 	},
 
 	highlightCurrent: function highlightCurrent() {

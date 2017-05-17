@@ -741,6 +741,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
         self.tooltip.style({
 	        opacity:1
         });
+        self.trigger("tooltipMover:end")
 
 	},
 	

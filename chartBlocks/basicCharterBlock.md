@@ -117,7 +117,7 @@ Reuters.Graphics.sharePrice.on("baseUpdate:end", function(evt){
 
 // datastream formatting:
 /*
-d3.json("http://fingfx.thomsonreuters.com/ppe/gfx/graphicstestsite/1/366/738/bls2.json", function(data){
+d3.json("//fingfx.thomsonreuters.com/ppe/gfx/graphicstestsite/1/366/738/bls2.json", function(data){
 	console.log(data)
 				
 	function formatData (response){

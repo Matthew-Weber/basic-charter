@@ -753,6 +753,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		});
 
 		self.jsonData = _.invoke(filtered, 'toJSON');
+
 		self.jsonData.forEach(function (d) {
 			var name = d.name;
 			d.values = d.values.toJSON();
@@ -761,6 +762,10 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				point.name = name;
 			});
 		});
+
+		if (self.jsonData.length == 1 && !self.options.hasLegend) {
+			self.hasLegend = false;
+		}
 
 		if (self.timelineData) {
 			self.showTip = true;

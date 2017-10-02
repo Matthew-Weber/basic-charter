@@ -9,7 +9,7 @@
    "dependencies": {
     "charter-commons": "https://github.com/Matthew-Weber/charter-commons.git#*"
   }, 
-  "version": "0.0.23",
+  "version": "0.0.24",
    "ignore": [
     "/.*"
   ]

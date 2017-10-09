@@ -60,6 +60,104 @@
 		});
 
 
+//annotations:
+/*
+			//annotationDebug:true,
+			annotations:function(){
+				var self = this;
+				return [
+
+			        {
+			          note: {
+			            label: "Basic settings with subject position(x,y) and a note offset(dx, dy)",
+			            title: "basic",
+			            wrap:150
+			          },
+			          data:{date:"02/05/2016",yvalue:1880},
+			          dy: -30,
+			          dx: 35
+			        },{
+			          note: {
+			            label: "Added connector end 'arrow', note wrap '180', and note align 'left'",
+			            title: "Arrow",
+			            wrap: 150,
+			            align: "left"
+			          },
+			          connector: {
+			            end: "arrow" // 'dot' also available
+			          },
+			          data:{date:"03/01/2016",yvalue:1978},
+	
+			          dy: 80,
+			          dx: 0
+			        },{
+			          note: {
+			            label: "Changed connector type to 'curve'",
+			            title: "dot and curve",
+			            wrap: 0
+			          },
+			          connector: {
+			            end: "dot",
+			            type: "curve",
+			            points: 1
+			          },
+			          data:{date:"03/21/2016",yvalue:2052},
+			          dy: 100,
+			          dx: 100
+			        },{
+			          type: d3.annotationCalloutCircle,
+			          note: {
+			            label: "A different annotation type",
+			            title: "It's a circle",
+			            wrap: 100,
+			            align: "middle"		            
+			          },
+			          subject: {
+			            radius: 10
+			          },
+			          data:{date:"04/11/2016",yvalue:2045},
+	
+			          dy: 115,
+			          dx: 102
+			        },
+
+					{
+			          type: d3.annotationXYThreshold,				
+					  note: {
+					    label: "Longer text to show text wrapping",
+					    title: "Vertical Line"
+					  },
+					  //can use x, y directly instead of data
+			          data:{date:"03/21/2016",yvalue:980},
+					  dy: 0,
+					  dx: 10,
+					  disable:["connector"], //connector, subject or note
+					  subject: {
+					    y1: 0,
+					    y2: self.height
+					  }
+					},
+
+					{
+			          type: d3.annotationXYThreshold,				
+					  note: {
+					    label: "Longer text to show text wrapping",
+					    title: "Horizontal Line"
+					  },
+					  //can use x, y directly instead of data
+			          data:{date:"03/21/2016",yvalue:980},
+					  dy: 0,
+					  dx: 10,
+					  disable:["connector"], //connector, subject or note
+					  subject: {
+					    x1: 0,
+					    x2: self.width
+					  }
+					}
+	
+			        ]
+			    }	
+*/
 
 //simple blocks
 /*

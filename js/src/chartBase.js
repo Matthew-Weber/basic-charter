@@ -33,6 +33,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	recessionDateParse : d3.time.format("%m/%d/%Y").parse,
 	updateCount:0,
 	divisor:1,
+	annotationType:d3.annotationLabel,	
 	timelineDate:d3.time.format("%m/%d/%Y"),	
 	timelineDateDisplay: d3.time.format("%b %e, %Y"),
 	timelineTemplate:Reuters.Graphics.basicCharter.Template.tooltipTimeline,
@@ -376,7 +377,11 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		self.multiDataMaker();
 		self.chartLayoutMaker();
 		self.baseUpdate(1);
-		
+
+		if (self.annotations){
+			self.labelAdder();
+		}
+				
 		$(window).on("resize", _.debounce(function(event) {
 			var width =  self.$el.width();
 			if (width < self.chartBreakPoint){
@@ -1204,6 +1209,14 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		    	.x(self.scales.x)
 			    .y(self.scales.y);
 		}
+
+		if (self.annotationGroup){
+			self.makeAnnotations.updatedAccessors()			
+			self.svg.select("g.annotation-group")
+//				.transition()
+				.call(self.makeAnnotations)		
+		}
+		
 		self.trigger("baseUpdate:end");
 	//end of base update	
 	},
@@ -1279,7 +1292,51 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				.attr("width", function (d) {return (self.scales.x(self.recessionDateParse(d.end))) - (self.scales.x(self.recessionDateParse(d.start)));});
 		}													
 	//end of zoom
+	},
+	labelAdder:function (){
+		var self = this;
+		self.annotationData = self.annotations()
+
+		self.makeAnnotations = d3.annotation()
+		  .editMode(self.annotationDebug)
+		  .type(self.annotationType)
+		  .annotations(self.annotationData)		  
+
+		  if (self.annotationData[0].data){
+			  
+		  	self.makeAnnotations
+			  .accessors({
+				x:function(d){
+					if (self.annotationData[0].data.date){
+						return self.scales.x(self.parseDate(d.date))						
+					}
+					return self.scales.x(d.xvalue)
+
+				},
+			    y: d => self.scales.y(d.yvalue)
+			  })
+			  .accessorsInverse({
+			     date:function(d){
+					return self.dateFormat(self.scales.x.invert(d.x))						
+				},
+				xvalue:function(d){
+					return self.scales.x.invert(d.x)					
+				},
+			    yvalue: d => self.scales.y.invert(d.y)
+			  })
+
+
+		  }
+
+		
+		self.annotationGroup = self.svg
+		  .append("g")
+		  .attr("class", "annotation-group")
+		  .call(self.makeAnnotations)	
+		  
+		 self.svg.select(".annotation-group").classed("active",true)	
 	}
+	
 //end of view
 });
 

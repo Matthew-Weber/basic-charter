@@ -312,7 +312,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			}
 		});
 		self.numberOfObjects = function(){ 
-			if (self.chartLayout == "onTopOf"){ return 1; }else{
+			if (self.chartLayout == "onTopOf" || self.chartLayout == "outlineBar"){ return 1; }else{
 				return self.jsonData.length;
 			}
 		};

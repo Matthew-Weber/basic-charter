@@ -84,6 +84,8 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 	},
 									
 	xBarPosition:function(d, i, j) {
+		
+		
 		var self = this;
 		var theScale = 'category';
 		var modifier = 0; 
@@ -91,6 +93,11 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			theScale = 'date';
 			modifier = (self.widthOfBar() * self.numberOfObjects() / 2);
 		}			
+
+		if(self.chartLayout == "outlineBar"){
+			return (self.scales.x(d.category));  			
+		}
+
 		if (self.chartLayout == "stackTotal" || self.chartLayout == "stackPercent" || self.chartLayout == "sideBySide" || self.chartLayout == "tier"){
 			if (self.hasTimeScale){ 
 				modifier = (self.widthOfBar()/2);
@@ -98,7 +105,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			}
 			return (self.scales.x(d[theScale])) - modifier;
 		}else{
-			if (self.chartLayout == "onTopOf"){
+			if (self.chartLayout == "onTopOf" || self.chartLayout == "outlineBar"){
 				return (self.scales.x(d[theScale]) - modifier)+((self.widthOfBar()/(j+1))*j/2);  
 			}else{
 				return ((self.scales.x(d[theScale]) - (j * self.widthOfBar())) + (self.widthOfBar() * (self.numberOfObjects() - 1))) - modifier;
@@ -145,7 +152,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 		}
 	},
 	
-	barFill:function (d,i){
+	barFill:function (d,i,j){
 		var self = this;
 		if (self.colorUpDown){
 			if (d[self.dataType] > 0){
@@ -154,6 +161,9 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 				return self.colorScale.range()[1];
 			}					  						  	
 		}
+		if(self.chartLayout == "outlineBar"){
+			if (j == 1){return "none"}  			
+		}		
 		if (self.hashAfterDate){
 				var cutoffDate = self.parseDate(self.hashAfterDate);
                 var strokecolor = d3.rgb(self.colorScale(d.name)).darker(0.8);
@@ -175,7 +185,11 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 		if (self.chartLayout == "tier"){
 			return self.widthOfBar() * self.numberOfObjects();
 		}
-		if (self.chartLayout == "onTopOf"){
+		if (self.chartLayout == "outlineBar"){
+			return self.widthOfBar() 
+		}
+
+		if (self.chartLayout == "onTopOf" ){
 			return (self.widthOfBar()) / (j + 1);
 		}else{
 			return self.widthOfBar();
@@ -220,7 +234,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			.data(function(d) {return d.values;})
 			.enter().append("rect")
 			.attr("class", "bar")
-			.style("fill", function(d,i){ return self.barFill(d,i); })
+			.style("fill", function(d,i,j){ return self.barFill(d,i,j); })
 			.attr(self.heightOrWidth, 0)
 			.attr(self.yOrX, self.scales.y(0))
 			.attr(self.widthOrHeight, function(d,i,j){ return self.barWidth(d,i,j); }) 
@@ -231,6 +245,15 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			.duration(1000)
 			.attr(self.yOrX, function(d){ return self.yBarPosition(d); })
 			.attr(self.heightOrWidth, function(d){ return self.barHeight(d); });
+
+		if(self.chartLayout == "outlineBar"){
+			self.barChart.selectAll(".bar")
+			.style("stroke", function(d,i,j){
+				if (j == 1){return "black"}  							
+			})
+
+		}
+
 
 		if (self.chartLayout =="sideBySide"){
 			self.svg.select("." + self.xOrY + ".axis")
@@ -317,7 +340,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			.data(function(d) {return d.values;})
 			.transition()
 			.duration(1000)
-			.style("fill", function(d,i){ return self.barFill(d,i); })
+			.style("fill", function(d,i,j){ return self.barFill(d,i,j); })
 			.attr(self.yOrX, function(d){ return self.yBarPosition(d); })
 			.attr(self.heightOrWidth, function(d){ return self.barHeight(d); })
 			.attr(self.widthOrHeight, function(d,i,j){ return self.barWidth(d,i,j); }) 
@@ -341,7 +364,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			.data(function(d) {return d.values;})
 			.enter().append("rect")
 			.attr("class", "bar")
-			.style("fill", function(d,i){ return self.barFill(d,i); })
+			.style("fill", function(d,i,j){ return self.barFill(d,i,j); })
 			.attr(self.heightOrWidth, 0)
 			.attr(self.yOrX, self.scales.y(0))
 			.attr(self.widthOrHeight, function(d,i,j){ return self.barWidth(d,i,j); }) 

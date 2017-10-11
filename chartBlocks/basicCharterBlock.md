@@ -45,7 +45,7 @@
 //			markDataPoints:true,
 //			multiDataColumns:["gpd","unemployment"],//can use value,changePreMonth, CumulativeChange, percentChange
 //			multiDataLabels:[gettext("VALUE"),gettext("PERCENT")],
-//			chartLayout:"stackPercent", // basic,stackTotal, stackPercent, fillLines, sideBySide, onTopOf,
+//			chartLayout:"stackPercent", // basic,stackTotal, stackPercent, fillLines, sideBySide, onTopOf, outlineBar
 //			chartLayoutLables:["stackPercent", "basic","stackTotal","fillLines"], //define this, and buttons appear
 //			orient:"right",
 //			yTickFormat:function(d){

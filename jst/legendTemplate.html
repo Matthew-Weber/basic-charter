@@ -13,9 +13,9 @@
 		}%>
 	</div>
 	<div class="legend-items-holder">
-		<% t.data.forEach(function(d){%>
+		<% t.data.forEach(function(d,i){%>
 			<div class="legendItems">
-				<div class='circleTip <%=t.self.chartType%>' style='background-color:<% print(t.self.colorScale(d.name))%>;'></div>
+				<div class='circleTip <%=t.self.chartType%> <%if (t.self.chartLayout == "outlineBar" && i==1){%>outline<%}%>' style='background-color:<% print(t.self.colorScale(d.name))%>;'></div>
 				<div class="legendInline">
 					<div class="nameTip">	<%= d.displayName %></div>
 					<div class='valueTip'>

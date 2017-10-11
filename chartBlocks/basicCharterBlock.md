@@ -12,19 +12,21 @@
 //			xScaleTicks: 5,
 //			yScaleTicks:5,
 //			dateFormat: d3.time.format("%b %Y"),
+//			quarterFormat:true,
 //			numbFormat: d3.format(",.1f"),
 //			divisor:1000,
 
 //			columnNamesDisplay:[gettext("Bob"),gettext("Jerry")], // only use this if you are using an array for columnNames
 //			colorUpDown:true,
+//			hashAfterDate:"01/01/2016", //requires you to run bower install -save textures
 //			hasLegend: false,
 //			showTip:true,
 //			yScaleVals: [0,100],
 //			tickAll:true, //if you make tickAll anything, it will put a tick for each point.
 //			horizontal:true,
 //			margin: {top: 60, right: 80, bottom: 60, left: 130},
-//			groupSort:"ascending", // ascending descending or array
-//			categorySort:"ascending", //ascending descending, array or alphabetical
+//			groupSort:"ascending", // ascending descending or array or 'none'
+//			categorySort:"ascending", //ascending descending, array or 'none'
 //			parseDate:d3.time.format("%d/%m/%y").parse // can change the format of the original dates
 //			hasRecessions: true,
 //			hasZoom: true,
@@ -37,7 +39,9 @@
 //				}				
 //			},
 //			lineType: "linear",//step-before, step-after
+//			topLegend:true,
 //			chartBreakPoint:400, //when do you want the legend to go up top
+//			topLegend:true,
 //			markDataPoints:true,
 //			multiDataColumns:["gpd","unemployment"],//can use value,changePreMonth, CumulativeChange, percentChange
 //			multiDataLabels:[gettext("VALUE"),gettext("PERCENT")],

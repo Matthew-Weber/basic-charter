@@ -30,6 +30,8 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	heightOrWidth : "height",
 	widthOrHeight : "width",
 	topOrLeft : "top",
+	bottomOrRight:"bottom",
+	rightOrBottom:"right",
 	recessionDateParse : d3.time.format("%m/%d/%Y").parse,
 	updateCount:0,
 	divisor:1,
@@ -37,6 +39,25 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	timelineDate:d3.time.format("%m/%d/%Y"),	
 	timelineDateDisplay: d3.time.format("%b %e, %Y"),
 	timelineTemplate:Reuters.Graphics.basicCharter.Template.tooltipTimeline,
+	quarterFormater:function(d){
+				var yearformat = d3.time.format(" %Y")	
+				var monthformat = d3.time.format("%m")
+				var quarters = {
+					"01":"Q1",
+					"02":"Q1",
+					"03":"Q1",
+					"04":"Q2",
+					"05":"Q2",
+					"06":"Q2",
+					"07":"Q3",
+					"08":"Q3",
+					"09":"Q3",
+					"10":"Q4",
+					"11":"Q4",
+					"12":"Q4",
+				}					
+				return quarters[monthformat(d)] +yearformat(d)
+	},
 	xTickFormat:Reuters.CurrentLocale.timeFormat.multi([
 	    ["%H:%M", function(d) { return d.getMinutes(); }],
 	    ["%H:%M", function(d) { return d.getHours(); }],
@@ -53,6 +74,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		_.each(opts, function(item, key){
 			self[key] = item;
 		});	
+		if (this.quarterFormat){
+			this.dateFormat = this.quarterFormater
+		}
 
 		if (self.timelineData){
 			self.loadTimelineData()
@@ -306,6 +330,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		var self = this;
 		self.trigger("baseRender:start");
 
+		if (self.topLegend){
+			self.chartBreakPoint = 3000;
+		}
 		//make basic template and set names of stuff
 		self.$el.html(self.chartTemplate({self:self}));
 		if (self.$el.width() < self.chartBreakPoint){

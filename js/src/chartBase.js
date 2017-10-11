@@ -1211,6 +1211,12 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		}
 
 		if (self.annotationGroup){
+			
+			self.annotationData = self.options.annotations(self)
+
+			self.makeAnnotations
+				.annotations(self.annotationData)				
+			
 			self.makeAnnotations.updatedAccessors()			
 			self.svg.select("g.annotation-group")
 //				.transition()

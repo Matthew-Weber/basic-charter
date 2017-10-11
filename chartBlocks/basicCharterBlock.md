@@ -63,10 +63,10 @@
 //annotations:
 /*
 			//annotationDebug:true,
-			annotations:function(){
-				var self = this;
+			annotations:function(self){
+				if (!self){self = this};
 				return [
-
+					
 			        {
 			          note: {
 			            label: "Basic settings with subject position(x,y) and a note offset(dx, dy)",
@@ -76,21 +76,27 @@
 			          data:{date:"02/05/2016",yvalue:1880},
 			          dy: -30,
 			          dx: 35
-			        },{
+			        },
+			        
+			        {
 			          note: {
 			            label: "Added connector end 'arrow', note wrap '180', and note align 'left'",
-			            title: "Arrow",
-			            wrap: 150,
-			            align: "left"
+			            title: "Arrow", // commenting this out will make no title
+			            wrap: 150, // how wide do you want it to be
+			            align: "left" // will the blurb be centered at the connection point, or left or right aligned?
 			          },
+			          className:"special-blurb", // add a specific class
 			          connector: {
 			            end: "arrow" // 'dot' also available
 			          },
-			          data:{date:"03/01/2016",yvalue:1978},
-	
+			          //data:{date:"03/01/2016",yvalue:1978}, // instead of data, you can use a specific x and y, as shown below
+					  x:self.width / 2,
+					  y:0,
 			          dy: 80,
 			          dx: 0
-			        },{
+			        },
+			        
+			        {
 			          note: {
 			            label: "Changed connector type to 'curve'",
 			            title: "dot and curve",
@@ -98,14 +104,16 @@
 			          },
 			          connector: {
 			            end: "dot",
-			            type: "curve",
-			            points: 1
+			            type: "curve", // this adds in teh curve
+			            points: 1 // number of points on the curve
 			          },
 			          data:{date:"03/21/2016",yvalue:2052},
 			          dy: 100,
 			          dx: 100
-			        },{
-			          type: d3.annotationCalloutCircle,
+			        },
+			        
+			        {
+			          type: d3.annotationCalloutCircle, // this sets as a circle
 			          note: {
 			            label: "A different annotation type",
 			            title: "It's a circle",
@@ -120,14 +128,14 @@
 			          dy: 115,
 			          dx: 102
 			        },
-
+					
+					
 					{
-			          type: d3.annotationXYThreshold,				
+			          type: d3.annotationXYThreshold,	 //vertical line			
 					  note: {
 					    label: "Longer text to show text wrapping",
 					    title: "Vertical Line"
 					  },
-					  //can use x, y directly instead of data
 			          data:{date:"03/21/2016",yvalue:980},
 					  dy: 0,
 					  dx: 10,
@@ -139,13 +147,12 @@
 					},
 
 					{
-			          type: d3.annotationXYThreshold,				
+			          type: d3.annotationXYThreshold,	// horizontal line			
 					  note: {
 					    label: "Longer text to show text wrapping",
 					    title: "Horizontal Line"
 					  },
-					  //can use x, y directly instead of data
-			          data:{date:"03/21/2016",yvalue:980},
+			          data:{date:"03/21/2016",yvalue:470},
 					  dy: 0,
 					  dx: 10,
 					  disable:["connector"], //connector, subject or note
@@ -153,10 +160,27 @@
 					    x1: 0,
 					    x2: self.width
 					  }
-					}
+					},
+					//makes a box
+			        {
+				      type:d3.annotationCalloutRect,
+			          note: {
+			            label: "Basic settings with subject position(x,y) and a note offset(dx, dy)",
+			            wrap:150,
+						//"align":"end",			            
+			          },
+			          data:{date:"02/17/2016",yvalue:0},
+			          subject:{
+				          width:self.scales.x(self.parseDate("02/24/2016")) - self.scales.x(self.parseDate("02/17/2016")),
+				          height:-self.height
+			          },
+			          disable:["connector"],
+			          dy: -176,
+			          dx: -10
+			        },					
 	
 			        ]
-			    }	
+			    }		
 */
 
 //simple blocks

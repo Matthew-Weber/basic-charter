@@ -1645,7 +1645,25 @@
         var x = this.accessorsInverse.date(xyObj);
         var y = formatnumb(this.accessorsInverse.yvalue(xyObj));
 
-        console.log("dx: " + dx + " dy: " + dy + " x: " + x + " y: " + y);
+        if (this.annotation.connector) {
+          if (this.annotation.connector.points) {
+            console.log("connector points (this is an array of arrays, with two points each. [[x,y],[x,y]]): " + this.annotation.connector.points);
+          }
+        }
+
+        if (this.annotation.subject) {
+          if (this.annotation.subject.radius) {
+            console.log("radius: " + this.annotation.subject.radius);
+          }
+          if (this.annotation.subject.width) {
+            console.log("width: " + this.annotation.subject.width);
+          }
+          if (this.annotation.subject.height) {
+            console.log("height: " + this.annotation.subject.height);
+          }
+        }
+
+        console.log("values", "dx: " + dx, " dy: " + dy, " x: " + x, " y: " + y, " rawx: " + this.annotation["_x"], " rawy: " + this.annotation["_y"]);
 
         this.dispatcher && this.dispatcher.dragend(this.a, this.annotation);
         this.a.classed("dragging", false);
@@ -3673,6 +3691,11 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		}
 
 		if (self.annotationGroup) {
+
+			self.annotationData = self.options.annotations(self);
+
+			self.makeAnnotations.annotations(self.annotationData);
+
 			self.makeAnnotations.updatedAccessors();
 			self.svg.select("g.annotation-group")
 			//				.transition()

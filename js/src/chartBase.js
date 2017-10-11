@@ -159,6 +159,8 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			self.heightOrWidth = "width";
 			self.widthOrHeight = "height";				
 			self.topOrLeft = "left";
+			self.bottomOrRight="right";
+			self.rightOrBottom="bottom";
 		}
 
 	
@@ -680,6 +682,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			var closestIndex = self.scales.x.range().indexOf(closestRange);
 			self.closestData = self.scales.x.domain()[closestIndex];
 			toolTipModifier = self.widthOfBar() / 2;
+			if (self.chartType == "line"){
+				toolTipModifier = 0;
+			}
 		}
 
 		//Got the value, now let's move the line.

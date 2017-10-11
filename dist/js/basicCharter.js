@@ -2748,6 +2748,8 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			self.heightOrWidth = "width";
 			self.widthOrHeight = "height";
 			self.topOrLeft = "left";
+			self.bottomOrRight = "right";
+			self.rightOrBottom = "bottom";
 		}
 
 		//find values to map, if not defined
@@ -3233,6 +3235,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			var closestIndex = self.scales.x.range().indexOf(closestRange);
 			self.closestData = self.scales.x.domain()[closestIndex];
 			toolTipModifier = self.widthOfBar() / 2;
+			if (self.chartType == "line") {
+				toolTipModifier = 0;
+			}
 		}
 
 		//Got the value, now let's move the line.
@@ -3841,7 +3846,14 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 		});
 	},
 	getXScale: function getXScale() {
-		return d3.time.scale().domain([this.xScaleMin(), this.xScaleMax()]).range([0, this.width]);
+
+		if (this.hasTimeScale) {
+			return d3.time.scale().domain([this.xScaleMin(), this.xScaleMax()]).range([0, this[this.widthOrHeight]]);
+		} else {
+			return d3.scale.ordinal().domain(this.jsonData[0].values.map(function (d) {
+				return d.category;
+			})).rangePoints([0, this[this.widthOrHeight]], 0);
+		}
 	},
 	yScaleMin: function yScaleMin() {
 		var theValues = this.dataType;
@@ -3878,12 +3890,22 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 		}
 		return max;
 	},
+	yScaleRange: function yScaleRange() {
+		var fullHeight = this[this.heightOrWidth];
+		var rangeLow = fullHeight;
+		var rangeHigh = 0;
+		if (this.horizontal) {
+			rangeLow = 0;
+			rangeHigh = fullHeight;
+		}
+		return [rangeLow, rangeHigh];
+	},
 	getYScale: function getYScale() {
 		var self = this;
 		if (!self.yScaleVals || this.hasZoom) {
-			return d3.scale.linear().domain([this.yScaleMin(), this.yScaleMax()]).nice(this.yScaleTicks).range([this.height, 0]);
+			return d3.scale.linear().domain([this.yScaleMin(), this.yScaleMax()]).nice(this.yScaleTicks).range(this.yScaleRange());
 		} else {
-			return d3.scale.linear().domain([this.yScaleVals[0], this.yScaleVals[this.yScaleVals.length - 1]]).nice(this.yScaleTicks).range([this.height, 0]);
+			return d3.scale.linear().domain([this.yScaleVals[0], this.yScaleVals[this.yScaleVals.length - 1]]).nice(this.yScaleTicks).range(this.yScaleRange());
 		}
 	},
 	renderChart: function renderChart() {
@@ -3894,11 +3916,14 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 		if (self.hasZoom) {
 			self.zoomChart();
 		}
-
 		//will draw the line		
-		self.line = d3.svg.line().x(function (d) {
-			return self.scales.x(d.date);
-		}).y(function (d) {
+		self.line = d3.svg.line()[self.xOrY](function (d) {
+			var theScale = 'category';
+			if (self.hasTimeScale) {
+				theScale = 'date';
+			}
+			return self.scales.x(d[theScale]);
+		})[self.yOrX](function (d) {
 			if (self.chartLayout == "stackTotal") {
 				return self.scales.y(d.y1Total);
 			} else {
@@ -3912,9 +3937,13 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			return !isNaN(d[self.dataType]);
 		});
 
-		self.area = d3.svg.area().x(function (d) {
-			return self.scales.x(d.date);
-		}).y0(function (d) {
+		self.area = d3.svg.area()[self.xOrY](function (d) {
+			var theScale = 'category';
+			if (self.hasTimeScale) {
+				theScale = 'date';
+			}
+			return self.scales.x(d[theScale]);
+		})[self.yOrX + "0"](function (d) {
 			if (self.chartLayout == "stackTotal") {
 				return self.scales.y(d.y0Total);
 			} else {
@@ -3924,7 +3953,7 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 					return self.scales.y(0);
 				}
 			}
-		}).y1(function (d) {
+		})[self.yOrX + "1"](function (d) {
 			if (self.chartLayout == "stackTotal") {
 				return self.scales.y(d.y1Total);
 			} else {
@@ -3998,9 +4027,14 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 
 		self.lineChart.selectAll(".tipCircle").data(function (d) {
 			return d.values;
-		}).enter().append("circle").attr("class", "tipCircle").attr("cx", function (d, i) {
-			return self.scales.x(d.date);
-		}).attr("cy", function (d, i) {
+		}).enter().append("circle").attr("class", "tipCircle").attr("c" + self.xOrY, function (d, i) {
+
+			var theScale = 'category';
+			if (self.hasTimeScale) {
+				theScale = 'date';
+			}
+			return self.scales.x(d[theScale]);
+		}).attr("c" + self.yOrX, function (d, i) {
 			if (self.chartLayout == "stackTotal") {
 				return self.scales.y(d.y1Total);
 			} else {
@@ -4024,8 +4058,12 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			return self.colorScale(d.name);
 		}) //1e-6
 		.classed("timeline", function (d) {
+			var theScale = 'category';
+			if (self.hasTimeScale) {
+				theScale = 'date';
+			}
 			if (self.timelineDataGrouped) {
-				if (self.timelineDataGrouped[self.timelineDate(d.date)]) {
+				if (self.timelineDataGrouped[self.timelineDate(d[theScale])]) {
 					return true;
 				}
 			}
@@ -4047,18 +4085,26 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 		self.baseUpdate();
 		self.trigger("update:start");
 
-		self.exitLine = d3.svg.line().x(function (d) {
-			return self.scales.x(d.date);
-		}).y(function (d) {
-			return self.margin.bottom + self.height + self.margin.top + 10;
+		self.exitLine = d3.svg.line()[self.xOrY](function (d) {
+			var theScale = 'category';
+			if (self.hasTimeScale) {
+				theScale = 'date';
+			}
+			return self.scales.x(d[theScale]);
+		})[self.yOrX](function (d) {
+			return self.margin[self.bottomOrRight] + self[self.heightOrWidth] + self.margin[self.topOrLeft] + 10;
 		}).interpolate(self.lineType);
 
-		self.exitArea = d3.svg.area().x(function (d) {
-			return self.scales.x(d.date);
-		}).y0(function (d) {
-			return self.margin.bottom + self.height + self.margin.top + 10;
-		}).y1(function (d) {
-			return self.margin.bottom + self.height + self.margin.top + 10;
+		self.exitArea = d3.svg.area()[self.xOrY](function (d) {
+			var theScale = 'category';
+			if (self.hasTimeScale) {
+				theScale = 'date';
+			}
+			return self.scales.x(d[theScale]);
+		})[self.yOrX + "0"](function (d) {
+			return self.margin[self.bottomOrRight] + self[self.heightOrWidth] + self.margin[self.topOrLeft] + 10;
+		})[self.yOrX + "1"](function (d) {
+			return self.margin[self.bottomOrRight] + self[self.heightOrWidth] + self.margin[self.topOrLeft] + 10;
 		}).interpolate(self.lineType);
 
 		//exiting lines
@@ -4104,7 +4150,7 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			return d.name;
 		}).selectAll(".tipCircle").data(function (d) {
 			return d.values;
-		}).transition().duration(1000).attr("cy", function (d, i) {
+		}).transition().duration(1000).attr("c" + self.yOrX, function (d, i) {
 			if (self.chartLayout == "stackTotal") {
 				return self.scales.y(d.y1Total);
 			} else {
@@ -4114,8 +4160,12 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 					return self.scales.y(d[self.dataType]);
 				}
 			}
-		}).attr("cx", function (d, i) {
-			return self.scales.x(d.date);
+		}).attr("c" + self.xOrY, function (d, i) {
+			var theScale = 'category';
+			if (self.hasTimeScale) {
+				theScale = 'date';
+			}
+			return self.scales.x(d[theScale]);
 		}).attr("r", function (d, i) {
 			if (isNaN(d[self.dataType])) {
 				return 0;
@@ -4135,9 +4185,13 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			return d.name;
 		}).selectAll(".tipCircle").data(function (d) {
 			return d.values;
-		}).enter().append("circle").attr("class", "tipCircle").attr("cx", function (d, i) {
-			return self.scales.x(d.date);
-		}).attr("cy", function (d, i) {
+		}).enter().append("circle").attr("class", "tipCircle").attr("c" + self.xOrY, function (d, i) {
+			var theScale = 'category';
+			if (self.hasTimeScale) {
+				theScale = 'date';
+			}
+			return self.scales.x(d[theScale]);
+		}).attr("c" + self.yOrX, function (d, i) {
 			if (self.chartLayout == "stackTotal") {
 				return self.scales.y(d.y1Total);
 			} else {

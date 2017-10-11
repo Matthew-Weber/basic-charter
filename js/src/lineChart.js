@@ -13,9 +13,16 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		return d3.max(this.jsonData, function(c) { return d3.max(c.values, function(v) { return v.date; }); });
 	},
 	getXScale: function() {
-		return d3.time.scale()
-			.domain([this.xScaleMin(),this.xScaleMax()])
-			.range([0, this.width]);
+		
+		if (this.hasTimeScale){		
+			return d3.time.scale()
+				.domain([this.xScaleMin(),this.xScaleMax()])
+				.range([0, this[this.widthOrHeight]]);
+		}else{
+			return d3.scale.ordinal()
+			.domain(this.jsonData[0].values.map(function(d) { return d.category;}))
+			.rangePoints([0, this[this.widthOrHeight]], 0);
+		}				
 	},
 	yScaleMin:function(){
 		var theValues = this.dataType;
@@ -32,18 +39,28 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		if (this.chartLayout == "stackPercent"){max = 100;}
 		return max;
 	},
+	yScaleRange: function(){
+		var fullHeight = this[this.heightOrWidth];
+		var rangeLow = fullHeight;
+		var rangeHigh = 0;
+		if (this.horizontal){
+			rangeLow = 0;
+			rangeHigh = fullHeight ;
+		}
+		return [rangeLow,rangeHigh];		
+	},	
 	getYScale: function() {
 		var self = this;
 		if (!self.yScaleVals || this.hasZoom){
 			return d3.scale.linear()
 				.domain([this.yScaleMin(),this.yScaleMax()])
 				.nice(this.yScaleTicks)
-				.range([this.height, 0]);
+				.range(this.yScaleRange());
 		}else{			
 			return d3.scale.linear()
 				.domain([this.yScaleVals[0],this.yScaleVals[this.yScaleVals.length - 1]])
 				.nice(this.yScaleTicks)
-				.range([this.height, 0]);
+				.range(this.yScaleRange());
 		}
 	},
 	renderChart: function (){
@@ -54,11 +71,16 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		if (self.hasZoom){
 			self.zoomChart();		
 		}
-											
 		//will draw the line		
 		self.line = d3.svg.line()
-	    	.x(function(d) { return self.scales.x(d.date); })
-		    .y(function(d) {
+	    	[self.xOrY](function(d) { 
+		    	var theScale = 'category';
+				if (self.hasTimeScale) {
+					theScale = 'date';
+				}			
+		    	return self.scales.x(d[theScale]); 
+		    })
+		    [self.yOrX](function(d) {
 		    	if (self.chartLayout == "stackTotal"){
 		    		return self.scales.y(d.y1Total); 		    	
 		    	}else {
@@ -69,15 +91,21 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 			.defined(function(d) { return !isNaN(d[self.dataType]); });
 
 		self.area = d3.svg.area()
-	    	.x(function(d) { return self.scales.x(d.date); })
-		    .y0(function(d) { 
+	    	[self.xOrY](function(d) {
+		    	var theScale = 'category';
+				if (self.hasTimeScale) {
+					theScale = 'date';
+				}			
+		    	return self.scales.x(d[theScale]); 		    	
+	    	})
+		    [self.yOrX+"0"](function(d) { 
 		    	if (self.chartLayout == "stackTotal"){
 		    		return self.scales.y(d.y0Total); 		    	
 		    	}else {
 			    	if (self.chartLayout == "stackPercent"){ return self.scales.y(d.y0Percent);}else{return self.scales.y(0);}
 		    	}
 		    })
-		    .y1(function(d) {
+		    [self.yOrX+"1"](function(d) {
 		    	if (self.chartLayout == "stackTotal"){
 		    		return self.scales.y(d.y1Total); 		    	
 		    	}else {
@@ -158,8 +186,15 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 			.enter()
 			.append("circle")
 			.attr("class","tipCircle")
-			.attr("cx", function(d,i){return self.scales.x(d.date);})
-			.attr("cy",function(d,i){
+			.attr("c"+self.xOrY, function(d,i){
+				
+				var theScale = 'category';
+				if (self.hasTimeScale) {
+					theScale = 'date';
+				}	
+				return self.scales.x(d[theScale]);
+			})
+			.attr("c"+self.yOrX,function(d,i){
 		    	if (self.chartLayout == "stackTotal"){
 		    		return self.scales.y(d.y1Total); 		    	
 		    	}else {
@@ -182,8 +217,12 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 			})
 			.style("fill", function(d) { return self.colorScale(d.name); })//1e-6
 			.classed("timeline", function(d){
+				var theScale = 'category';
+				if (self.hasTimeScale) {
+					theScale = 'date';
+				}					
 				if (self.timelineDataGrouped){
-					if (self.timelineDataGrouped[self.timelineDate(d.date)]){
+					if (self.timelineDataGrouped[self.timelineDate(d[theScale])]){
 						return true;
 					}					
 				}
@@ -207,14 +246,26 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		self.trigger("update:start");
 	
 		self.exitLine = d3.svg.line()
-			.x(function(d) { return self.scales.x(d.date); })
-			.y(function(d) { return  self.margin.bottom+self.height+self.margin.top+10;})
+			[self.xOrY](function(d) { 
+				var theScale = 'category';
+				if (self.hasTimeScale) {
+					theScale = 'date';
+				}	
+				return self.scales.x(d[theScale]); 
+			})
+			[self.yOrX](function(d) { return  self.margin[self.bottomOrRight]+self[self.heightOrWidth]+self.margin[self.topOrLeft]+10;})
 			.interpolate (self.lineType);
 	
 		self.exitArea = d3.svg.area()
-			.x(function(d) { return self.scales.x(d.date); })
-			.y0(function(d) { return  self.margin.bottom+self.height+self.margin.top+10;})
-			.y1(function(d) { return  self.margin.bottom+self.height+self.margin.top+10;})
+			[self.xOrY](function(d) { 
+				var theScale = 'category';
+				if (self.hasTimeScale) {
+					theScale = 'date';
+				}	
+				return self.scales.x(d[theScale]); 
+			})
+			[self.yOrX+"0"](function(d) { return  self.margin[self.bottomOrRight]+self[self.heightOrWidth]+self.margin[self.topOrLeft]+10;})
+			[self.yOrX+"1"](function(d) { return  self.margin[self.bottomOrRight]+self[self.heightOrWidth]+self.margin[self.topOrLeft]+10;})
 			.interpolate (self.lineType);
 	
 		//exiting lines
@@ -274,7 +325,7 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 	        .data( function(d) {return d.values; })
 	        .transition()
 	        .duration(1000)
-			.attr("cy",function(d,i){
+			.attr("c"+self.yOrX,function(d,i){
 		    	if (self.chartLayout == "stackTotal"){
 		    		return self.scales.y(d.y1Total); 		    	
 		    	}else {
@@ -285,7 +336,14 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 					}		
 				}
 			})
-		    .attr("cx", function(d,i){return self.scales.x(d.date);})
+		    .attr("c"+self.xOrY, function(d,i){
+				var theScale = 'category';
+				if (self.hasTimeScale) {
+					theScale = 'date';
+				}	
+			    return self.scales.x(d[theScale]);
+
+			    })
 			.attr("r",function (d,i) {
 				if ( isNaN(d[self.dataType])){return 0;} 
 				 return 5;
@@ -310,8 +368,14 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 	        .enter()
 			.append("circle")
 			.attr("class","tipCircle")
-			.attr("cx", function(d,i){return self.scales.x(d.date);})
-			.attr("cy",function(d,i){
+			.attr("c"+self.xOrY, function(d,i){
+				var theScale = 'category';
+				if (self.hasTimeScale) {
+					theScale = 'date';
+				}	
+				return self.scales.x(d[theScale]);
+			})
+			.attr("c"+self.yOrX,function(d,i){
 		    	if (self.chartLayout == "stackTotal"){
 		    		return self.scales.y(d.y1Total); 		    	
 		    	}else {

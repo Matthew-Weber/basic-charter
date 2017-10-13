@@ -95,7 +95,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 		}			
 
 		if(self.chartLayout == "outlineBar"){
-			return (self.scales.x(d.category));  			
+			return (self.scales.x(d[theScale]));  			
 		}
 
 		if (self.chartLayout == "stackTotal" || self.chartLayout == "stackPercent" || self.chartLayout == "sideBySide" || self.chartLayout == "tier"){

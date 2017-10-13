@@ -4586,10 +4586,11 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 		});
 
 		if (self.chartLayout == "outlineBar") {
-			self.barChart.selectAll(".bar").style("stroke", function (d, i, j) {
+			self.barChart.selectAll(".bar").classed("outline", function (d, i, j) {
 				if (j == 1) {
-					return "black";
+					return true;
 				}
+				return false;
 			});
 		}
 

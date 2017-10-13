@@ -3261,7 +3261,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 						include = true;
 					}
 				});
-				if (!include) {
+				if (!include && !self.showZeros) {
 					return;
 				}
 				if (self.closestData === null || Math.abs(d.get("date") - self.locationDate) < Math.abs(self.closestData - self.locationDate)) {
@@ -3294,7 +3294,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 						});
 					}
 				});
-				if (!include) {
+				if (!include && !self.showZeros) {
 					return;
 				}
 				if (closestRange === null || Math.abs(d - indexLocation) < Math.abs(closestRange - indexLocation)) {

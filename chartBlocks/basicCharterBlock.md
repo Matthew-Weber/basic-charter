@@ -21,6 +21,7 @@
 //			hashAfterDate:"01/01/2016", //requires you to run bower install -save textures
 //			hasLegend: false,
 //			showTip:true,
+//			showZeros:true, //tooltip will not skip over zero values
 //			yScaleVals: [0,100],
 //			tickAll:true, //if you make tickAll anything, it will put a tick for each point.
 //			horizontal:true,

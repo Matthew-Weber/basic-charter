@@ -191,16 +191,19 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 				var theScale = 'category';
 				if (self.hasTimeScale) {
 					theScale = 'date';
-				}	
+				}
 				return self.scales.x(d[theScale]);
 			})
 			.attr("c"+self.yOrX,function(d,i){
 		    	if (self.chartLayout == "stackTotal"){
+					if (!d.y1Total){return self.scales.y(0)}	
 		    		return self.scales.y(d.y1Total); 		    	
 		    	}else {
-			    	if (self.chartLayout == "stackPercent"){ 
+			    	if (self.chartLayout == "stackPercent"){
+				    	if (!d.y1Percent){return self.scales.y(0)} 
 				    	return self.scales.y(d.y1Percent);
 				    }else{
+					    if (!d[self.dataType]){return self.scales.y(0)}
 					    return self.scales.y(d[self.dataType]);
 					}		
 				}
@@ -327,11 +330,14 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 	        .duration(1000)
 			.attr("c"+self.yOrX,function(d,i){
 		    	if (self.chartLayout == "stackTotal"){
+					if (!d.y1Total){return self.scales.y(0)}
 		    		return self.scales.y(d.y1Total); 		    	
 		    	}else {
 			    	if (self.chartLayout == "stackPercent"){ 
+					    if (!d.y1Percent){return self.scales.y(0)}
 				    	return self.scales.y(d.y1Percent);
 				    }else{
+						if (!d[self.dataType]){return self.scales.y(0)}
 					    return self.scales.y(d[self.dataType]);
 					}		
 				}

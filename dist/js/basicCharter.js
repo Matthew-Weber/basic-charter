@@ -2716,7 +2716,6 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		if (this.timelineData.indexOf("csv") > -1) {
 			d3.csv(self.timelineData, function (data) {
 				self.timelineData = data;
-				console.log(self.timelineData);
 				self.loadData();
 				return;
 			});
@@ -2876,6 +2875,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 
 		if (self.jsonData.length == 1 && !self.options.hasLegend) {
 			self.hasLegend = false;
+		}
+		if (self.jsonData.length > 1 && self.options.hasLegend != false) {
+			self.hasLegend = true;
 		}
 
 		if (self.timelineData) {
@@ -3250,6 +3252,18 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		if (self.hasTimeScale) {
 			self.locationDate = self.scales.x.invert(indexLocation);
 			self.chartData.first().get("values").each(function (d, i) {
+				var include;
+				_.each(d.attributes, function (obj, key) {
+					if (key == "date") {
+						return;
+					}
+					if (obj.value) {
+						include = true;
+					}
+				});
+				if (!include) {
+					return;
+				}
 				if (self.closestData === null || Math.abs(d.get("date") - self.locationDate) < Math.abs(self.closestData - self.locationDate)) {
 					self.closestData = d.get("date");
 				}
@@ -3264,7 +3278,25 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			}
 		} else {
 			var closestRange = null;
-			self.scales.x.range().forEach(function (d) {
+			self.scales.x.range().forEach(function (d, i) {
+				var include;
+
+				self.chartData.first().get("values").each(function (item) {
+					if (item.get("category") == self.scales.x.domain()[i]) {
+
+						_.each(item.attributes, function (obj, key) {
+							if (key == "category") {
+								return;
+							}
+							if (obj.value) {
+								include = true;
+							}
+						});
+					}
+				});
+				if (!include) {
+					return;
+				}
 				if (closestRange === null || Math.abs(d - indexLocation) < Math.abs(closestRange - indexLocation)) {
 					closestRange = d;
 				}
@@ -3310,7 +3342,6 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			}
 			return self.yPointCursor - toolTipHeight / 2 + "px";
 		});
-
 		//and now we can update the legend.
 		if (self.hasLegend) {
 			var legendData = self.makeTipData();
@@ -3582,13 +3613,15 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		}
 
 		if (ticksWidth > self.width) {
-			self[self.xOrY + "Axis"].ticks(2);
+			if (self.horizontal) {
+				self["xAxis"].ticks(3);
+			} else {
+				self["xAxis"].ticks(2);
+			}
 
 			if (self.tickAll) {
 				self[self.xOrY + "Axis"].tickValues(self.smallDateDomain);
 			}
-
-			self.svg.select(".x.axis").transition().attr("transform", "translate(0," + self.height + ")").call(self.xAxis);
 		}
 	},
 
@@ -4073,11 +4106,20 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			return self.scales.x(d[theScale]);
 		}).attr("c" + self.yOrX, function (d, i) {
 			if (self.chartLayout == "stackTotal") {
+				if (!d.y1Total) {
+					return self.scales.y(0);
+				}
 				return self.scales.y(d.y1Total);
 			} else {
 				if (self.chartLayout == "stackPercent") {
+					if (!d.y1Percent) {
+						return self.scales.y(0);
+					}
 					return self.scales.y(d.y1Percent);
 				} else {
+					if (!d[self.dataType]) {
+						return self.scales.y(0);
+					}
 					return self.scales.y(d[self.dataType]);
 				}
 			}
@@ -4189,11 +4231,20 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			return d.values;
 		}).transition().duration(1000).attr("c" + self.yOrX, function (d, i) {
 			if (self.chartLayout == "stackTotal") {
+				if (!d.y1Total) {
+					return self.scales.y(0);
+				}
 				return self.scales.y(d.y1Total);
 			} else {
 				if (self.chartLayout == "stackPercent") {
+					if (!d.y1Percent) {
+						return self.scales.y(0);
+					}
 					return self.scales.y(d.y1Percent);
 				} else {
+					if (!d[self.dataType]) {
+						return self.scales.y(0);
+					}
 					return self.scales.y(d[self.dataType]);
 				}
 			}

@@ -48,7 +48,8 @@
 //			multiDataLabels:[gettext("VALUE"),gettext("PERCENT")],
 //			chartLayout:"stackPercent", // basic,stackTotal, stackPercent, fillLines, sideBySide, onTopOf, outlineBar
 //			chartLayoutLables:["stackPercent", "basic","stackTotal","fillLines"], //define this, and buttons appear
-//			orient:"right",
+//			yorient:"right",
+//			xorient:"top",
 //			yTickFormat:function(d){
 //				var numbFormat = d3.format(".2f")
 //				return numbFormat(d)

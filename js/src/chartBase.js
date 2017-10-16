@@ -444,8 +444,13 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 
 		if (!self.options.margin){
 			self.margin = {top:15, right: 20, bottom: 30, left:9 +  maxWidth};
-			if (self.orient == "right"){
-				self.margin = { top: 15, left: 5, bottom: 30, right: 20 + maxWidth };
+			if (self.yorient == "right"){
+				self.margin.left = 5;
+				self.margin.right = 20 + maxWidth
+			}
+			if (self.xorient == "top"){
+				self.margin.top = 30;
+				self.margin.bottom = 15;
 			}
 		}
 
@@ -509,10 +514,15 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		    .ticks(self[self.yOrX+"ScaleTicks"])
 		    .tickPadding(8);
 
-		if (self.orient == "right"){
+		if (self.yorient == "right"){
 			self.yAxis
 			.orient("right").tickPadding(20);
 		}
+		if (self.xorient == "top"){
+			self.xAxis
+			.orient("top")
+		}
+
 
 		//change the tic size if it's sideways    
 		if (self.horizontal){
@@ -558,14 +568,20 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		self.svg.append("svg:g")
 		    .attr("class", "x axis");		
 	    self.svg.select(".x.axis")
-	        .attr("transform", "translate(0," + self.height + ")")
+	        .attr("transform", function(d){
+		        if (self.xorient != "top"){
+			        return "translate(0," + self.height + ")"			        
+		        }
+		     })
 	        .call(self.xAxis);
 		self.svg.append("svg:g")
 		    .attr("class", "y axis");			
 	    self.svg.select(".y.axis")
         	.attr("transform", function(d){
-	        	if (self.orient == "right")
-	        	return "translate("+self.width+",0)"	        	
+	        	if (self.yorient == "right"){
+		        	return "translate("+self.width+",0)"	        			        	
+	        	}
+
         	})
 	    	.call(self.yAxis); 
 
@@ -691,7 +707,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			self.chartData.first().get("values").each(function(d,i){
 				var include;
 				_.each(d.attributes, function(obj,key){
-					if(!_.isObject(obj)){return}					
+					if(!_.isObject(obj)){return}
 					if (key == "date"){return}
 					if (obj.value){
 						include = true
@@ -720,7 +736,6 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 
 						_.each(item.attributes, function(obj,key){
 							if(!_.isObject(obj)){return}
-							
 							if (key == "category"){return}
 							if (obj.value){
 								include = true
@@ -1161,14 +1176,18 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		self.svg.select(".x.axis")
 			.transition()
 			.duration(duration)
-	        .attr("transform", "translate(0," + self.height + ")")
-			.call(self.xAxis);					
+			.attr("transform", function(d){
+		        if (self.xorient != "top"){
+			        return "translate(0," + self.height + ")"			        
+		        }
+		     })			
+		     .call(self.xAxis);					
 
 		self.svg.select(".y.axis")
 			.transition()
 			.duration(duration)
         	.attr("transform", function(d){
-	        	if (self.orient == "right")
+	        	if (self.yorient == "right")
 	        	return "translate("+self.width+",0)"	        	
         	})			
 			.call(self.yAxis)

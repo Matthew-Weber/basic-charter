@@ -691,6 +691,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			self.chartData.first().get("values").each(function(d,i){
 				var include;
 				_.each(d.attributes, function(obj,key){
+					if(!_.isObject(obj)){return}					
 					if (key == "date"){return}
 					if (obj.value){
 						include = true
@@ -718,6 +719,8 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 					if (item.get("category") == self.scales.x.domain()[i]){
 
 						_.each(item.attributes, function(obj,key){
+							if(!_.isObject(obj)){return}
+							
 							if (key == "category"){return}
 							if (obj.value){
 								include = true

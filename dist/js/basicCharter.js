@@ -2601,7 +2601,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	dateFormat: d3.time.format("%b %Y"),
 	tipTemplate: Reuters.Graphics.basicCharter.Template.tooltip,
 	chartTemplate: Reuters.Graphics.basicCharter.Template.chartTemplate,
-	legendTemplate: Reuters.Graphics.basicCharter.Template.legendTemplate,
+	legendTemplate: Reuters.Graphics.Template.basicCharter.legendTemplate,
 	tipNumbFormat: function tipNumbFormat(d) {
 		var self = this;
 		if (isNaN(d) === true) {
@@ -2633,7 +2633,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	annotationType: d3.annotationLabel,
 	timelineDate: d3.time.format("%m/%d/%Y"),
 	timelineDateDisplay: d3.time.format("%b %e, %Y"),
-	timelineTemplate: Reuters.Graphics.basicCharter.Template.tooltipTimeline,
+	timelineTemplate: Reuters.Graphics.Template.basicCharter.tooltipTimeline,
 	quarterFormater: function quarterFormater(d) {
 		var yearformat = d3.time.format(" %Y");
 		var monthformat = d3.time.format("%m");
@@ -3142,15 +3142,25 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		}
 		//draw all the axis
 		self.svg.append("svg:g").attr("class", "x axis");
-		self.svg.select(".x.axis").attr("transform", function (d) {
-			if (self.xorient != "top") {
-				return "translate(0," + self.height + ")";
+		self.svg.selectAll(".x.axis").attr("transform", function (d, i) {
+			var toptrans = self.height;
+			if (self.xorient == "top") {
+				toptrans = 0;
 			}
+			if (self.chartLayout != "sideBySide") {
+				i = 0;
+			}
+			return "translate(" + i * (self[self.widthOrHeight] / self.numberOfObjects()) + "," + toptrans + ")";
 		}).call(self.xAxis);
 		self.svg.append("svg:g").attr("class", "y axis");
-		self.svg.select(".y.axis").attr("transform", function (d) {
+		self.svg.selectAll(".y.axis").attr("transform", function (d, i) {
 			if (self.yorient == "right") {
 				return "translate(" + self.width + ",0)";
+			}
+			if (self.chartLayout == "sideBySide" && self.horizontal) {
+				var heightFactor = i * (self[self.widthOrHeight] / self.numberOfObjects());
+				var widthFactor = 0;
+				return "translate(" + widthFactor + "," + heightFactor + ")";
 			}
 		}).call(self.yAxis);
 
@@ -3700,14 +3710,24 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		}
 
 		// update the axes,   
-		self.svg.select(".x.axis").transition().duration(duration).attr("transform", function (d) {
-			if (self.xorient != "top") {
-				return "translate(0," + self.height + ")";
+		self.svg.selectAll(".x.axis").transition().duration(duration).attr("transform", function (d, i) {
+			var toptrans = self.height;
+			if (self.xorient == "top") {
+				toptrans = 0;
 			}
+			if (self.chartLayout != "sideBySide") {
+				i = 0;
+			}
+			return "translate(" + i * (self[self.widthOrHeight] / self.numberOfObjects()) + "," + toptrans + ")";
 		}).call(self.xAxis);
 
-		self.svg.select(".y.axis").transition().duration(duration).attr("transform", function (d) {
+		self.svg.selectAll(".y.axis").transition().duration(duration).attr("transform", function (d, i) {
 			if (self.yorient == "right") return "translate(" + self.width + ",0)";
+			if (self.chartLayout == "sideBySide" && self.horizontal) {
+				var heightFactor = i * (self[self.widthOrHeight] / self.numberOfObjects());
+				var widthFactor = 0;
+				return "translate(" + widthFactor + "," + heightFactor + ")";
+			}
 		}).call(self.yAxis).each("end", function (d) {
 			if (self.updateCount === 0) {
 				self.updateCount++;
@@ -3725,7 +3745,10 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 
 		//FIX - should be better x axis on the side by side
 		if (self.chartLayout == "sideBySide") {
-			self.svg.select("." + self.xOrY + ".axis").style("display", "none");
+			/*
+   			self.svg.select("." + self.xOrY + ".axis")
+   				.style("display", "none");
+   */
 		} else {
 			self.svg.select("." + self.xOrY + ".axis").style("display", "block");
 		}
@@ -3816,7 +3839,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 
 		//define the zoom function
 		function zoomed() {
-			self.svg.select(".x.axis").call(self.xAxis);
+			self.svg.selectAll(".x.axis").call(self.xAxis);
 			self.svg.select(".y.axis").call(self.yAxis);
 
 			if (!self.horizontal) {
@@ -3884,18 +3907,16 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		self.makeAnnotations = d3.annotation().editMode(self.annotationDebug).type(self.annotationType).annotations(self.annotationData);
 
 		if (self.annotationData[0].data) {
+			var _self$makeAnnotations;
 
-			self.makeAnnotations.accessors({
-				x: function x(d) {
-					if (self.annotationData[0].data.date) {
-						return self.scales.x(self.parseDate(d.date));
-					}
-					return self.scales.x(d.xvalue);
-				},
-				y: function y(d) {
-					return self.scales.y(d.yvalue);
+			self.makeAnnotations.accessors((_self$makeAnnotations = {}, babelHelpers.defineProperty(_self$makeAnnotations, self.xOrY, function (d) {
+				if (self.annotationData[0].data.date) {
+					return self.scales.x(self.parseDate(d.date));
 				}
-			}).accessorsInverse({
+				return self.scales.x(d.xvalue);
+			}), babelHelpers.defineProperty(_self$makeAnnotations, self.yOrX, function (d) {
+				return self.scales.y(d.yvalue);
+			}), _self$makeAnnotations)).accessorsInverse({
 				date: function date(d) {
 					return self.dateFormat(self.scales.x.invert(d.x));
 				},
@@ -4619,9 +4640,21 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 		}
 
 		if (self.chartLayout == "sideBySide") {
-			self.svg.select("." + self.xOrY + ".axis").style("display", "none");
-		} else {
-			self.svg.select("." + self.xOrY + ".axis").style("display", "block");
+
+			var $xaxis = $("#" + self.targetDiv + " ." + self.xOrY + ".axis");
+
+			self.jsonData.forEach(function (d, i) {
+				if (i == 0) {
+					return;
+				}
+				var heightFactor = self.height;
+				var widthFactor = i * (self[self.widthOrHeight] / self.numberOfObjects());
+				if (self.horizontal) {
+					heightFactor = i * (self[self.widthOrHeight] / self.numberOfObjects());
+					widthFactor = 0;
+				}
+				$xaxis.clone().attr("transform", "translate(" + widthFactor + "," + heightFactor + ")").appendTo($xaxis.parent());
+			});
 		}
 
 		if (self.chartLayout == "tier") {

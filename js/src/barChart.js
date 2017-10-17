@@ -257,11 +257,21 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 
 
 		if (self.chartLayout =="sideBySide"){
-			self.svg.select("." + self.xOrY + ".axis")
-				.style("display", "none");					
-		}else{
-			self.svg.select("." + self.xOrY + ".axis")
-				.style("display", "block");										
+			
+			var $xaxis = $("#"+self.targetDiv+" ."+self.xOrY+".axis")
+
+			self.jsonData.forEach(function(d,i){
+				if (i == 0){return}
+				var heightFactor = self.height;
+				var widthFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects()));
+				if (self.horizontal){
+					heightFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects()));
+					widthFactor = 0;
+				}
+				$xaxis.clone().attr("transform","translate(" + widthFactor + ","+heightFactor+")").appendTo($xaxis.parent())				
+				
+			})
+	
 		}
 
 		if (self.chartLayout == "tier"){

@@ -263,9 +263,9 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			self.jsonData.forEach(function(d,i){
 				if (i == 0){return}
 				var heightFactor = self.height;
-				var widthFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects()));
+				var widthFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects())) +self.widthOfBar()/2;
 				if (self.horizontal){
-					heightFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects()));
+					heightFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects())) +self.widthOfBar()/2;
 					widthFactor = 0;
 				}
 				$xaxis.clone().attr("transform","translate(" + widthFactor + ","+heightFactor+")").appendTo($xaxis.parent())				

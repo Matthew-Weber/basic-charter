@@ -8,7 +8,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	dateFormat: d3.time.format("%b %Y"),
 	tipTemplate:Reuters.Graphics.basicCharter.Template.tooltip,
 	chartTemplate:Reuters.Graphics.basicCharter.Template.chartTemplate,
-	legendTemplate: Reuters.Graphics.Template.basicCharter.legendTemplate,
+	legendTemplate: Reuters.Graphics.basicCharter.Template.legendTemplate,
 	tipNumbFormat: function(d){
 		var self = this;
 		if (isNaN(d) === true){return "N/A";}else{
@@ -38,7 +38,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	annotationType:d3.annotationLabel,	
 	timelineDate:d3.time.format("%m/%d/%Y"),	
 	timelineDateDisplay: d3.time.format("%b %e, %Y"),
-	timelineTemplate:Reuters.Graphics.Template.basicCharter.tooltipTimeline,
+	timelineTemplate:Reuters.Graphics.basicCharter.Template.tooltipTimeline,
 	quarterFormater:function(d){
 				var yearformat = d3.time.format(" %Y")	
 				var monthformat = d3.time.format("%m")
@@ -573,8 +573,12 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				if (self.xorient == "top"){
 					toptrans = 0;
 				}
-				if (self.chartLayout != "sideBySide"){ i = 0}
-			    return "translate(" + (i * (self[self.widthOrHeight] / self.numberOfObjects())) + ","+toptrans+")"	
+				var sideAdjust = 0;
+				if (self.chartLayout == "sideBySide" && !self.horizontal){
+					sideAdjust = self.widthOfBar()/2				
+				}				
+				if (self.chartLayout != "sideBySide"){ i = 0;}
+			    return "translate(" + ((i * (self[self.widthOrHeight] / self.numberOfObjects()))+sideAdjust) + ","+toptrans+")"	
 		     })
 	        .call(self.xAxis);
 		self.svg.append("svg:g")
@@ -585,7 +589,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		        	return "translate("+self.width+",0)"	        			        	
 	        	}
 	        	if (self.chartLayout == "sideBySide" && self.horizontal){
-					var	heightFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects()));
+					var	heightFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects()))+self.widthOfBar()/2;
 					var	widthFactor = 0;
 		        	return "translate(" + widthFactor + ","+heightFactor+")"
 	        	}
@@ -693,7 +697,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		var widthsOver = 0;
 		if (self.chartLayout == "sideBySide"){
 			var eachChartWidth = (self[self.widthOrHeight] / self.numberOfObjects());
-			for (i = 0; i < self.numberOfObjects;  i++ ){
+			for (i = 0; i < self.numberOfObjects();  i++ ){
 				if ((self.xPointCursor - self.margin[self.leftOrTop]) > eachChartWidth){
 					self.xPointCursor = self.xPointCursor - eachChartWidth;
 					widthsOver = widthsOver + eachChartWidth;
@@ -709,6 +713,16 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		//if it's an ordinal scale it's a little trickier.
 		self.closestData = null;				
 		var indexLocation = self.xPointCursor - parseFloat(self.margin[self.leftOrTop]);
+			if (self.chartLayout == "sideBySide"){
+				var widthOfEach = self.width / self.numberOfObjects()
+				if (indexLocation > widthOfEach*2){
+					indexLocation = indexLocation - widthOfEach * 2
+				}
+				if (indexLocation > widthOfEach){
+					indexLocation = indexLocation - widthOfEach
+				}
+				
+			}
 
 		if (self.hasTimeScale){
 			self.locationDate = self.scales.x.invert(indexLocation);
@@ -784,7 +798,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 					tipWidth = $("#" + self.targetDiv + " .reuters-tooltip").outerHeight();
 				}
 				if (self.xPointCursor < (self.margin.left + self.width + self.margin.right) / 2){
-					return self.margin[self.leftOrTop] + self.scales.x(self.closestData) + toolTipModifier + 15 + "px";
+					return self.margin[self.leftOrTop] + self.scales.x(self.closestData) + toolTipModifier+ widthsOver + 15 + "px";
 				}else{
 					return self.scales.x(self.closestData) + toolTipModifier - tipWidth +15  + "px";
 				}						
@@ -1189,8 +1203,12 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				if (self.xorient == "top"){
 					toptrans = 0;
 				}
-				if (self.chartLayout != "sideBySide"){ i = 0}
-			    return "translate(" + (i * (self[self.widthOrHeight] / self.numberOfObjects())) + ","+toptrans+")"			        
+				var sideAdjust = 0;
+				if (self.chartLayout == "sideBySide" && !self.horizontal){
+					sideAdjust = self.widthOfBar()/2				
+				}				
+				if (self.chartLayout != "sideBySide"){ i = 0;}
+			    return "translate(" + ((i * (self[self.widthOrHeight] / self.numberOfObjects()))+sideAdjust) + ","+toptrans+")"			        
 		     })			
 		     .call(self.xAxis);					
 
@@ -1204,7 +1222,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	        	if (self.yorient == "right")
 	        	return "translate("+self.width+",0)"
 	        	if (self.chartLayout == "sideBySide" && self.horizontal){
-					var	heightFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects()));
+					var	heightFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects()))+self.widthOfBar()/2;
 					var	widthFactor = 0;
 		        	return "translate(" + widthFactor + ","+heightFactor+")"
 	        	}
@@ -1228,16 +1246,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				.attr("x1", "-"+self.margin.left);
 		}
 		
-		//FIX - should be better x axis on the side by side
-		if (self.chartLayout == "sideBySide"){
-/*
-			self.svg.select("." + self.xOrY + ".axis")
-				.style("display", "none");
-*/
-		}else{
-			self.svg.select("." + self.xOrY + ".axis")
-				.style("display", "block");										
-		}
+
 		
 		//fix, tier is all screwy, should just rethink
 		if (self.chartLayout == "tier"){

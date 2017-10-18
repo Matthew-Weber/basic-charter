@@ -12,12 +12,19 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 	xScaleMax:function(){
 		return d3.max(this.jsonData, function(c) { return d3.max(c.values, function(v) { return v.date; }); });
 	},
+	xScaleRange:function(){
+		var range = [0, this[this.widthOrHeight]]
+		if (this.chartLayout == "sideBySide"){
+			range = [0, (this[this.widthOrHeight]/(this.jsonData.length * (1 + (2 / (this.jsonData[0].values.length) ) ) ) )];
+		}
+		return range;
+	},	
 	getXScale: function() {
 		
 		if (this.hasTimeScale){		
 			return d3.time.scale()
 				.domain([this.xScaleMin(),this.xScaleMax()])
-				.range([0, this[this.widthOrHeight]]);
+				.range(this.xScaleRange());
 		}else{
 			return d3.scale.ordinal()
 			.domain(this.jsonData[0].values.map(function(d) { return d.category;}))
@@ -143,6 +150,20 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 				d3.selectAll(".lineChart")
 					.classed('notSelected', false);
 			});
+			
+		if (self.chartLayout == "sideBySide"){
+			self.lineChart.attr("transform", function(d,i){
+				if (!self.horizontal){
+					return 	"translate(" + (i * (self[self.widthOrHeight] / self.numberOfObjects())) + ",0)";				  	
+				}else{
+					return 	"translate(0," + (i * (self[self.widthOrHeight] / self.numberOfObjects())) + ")";				  						
+				}
+			});
+		}else{
+			self.lineChart.attr("transform", function(d,i){
+					return 	"translate(0,0)";				  	
+			});	
+		}			
 
 		self.lineChart.append("path")
 			.attr("class", "line")
@@ -233,6 +254,24 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 			});
 
 
+		if (self.chartLayout =="sideBySide"){
+			
+			var $xaxis = $("#"+self.targetDiv+" ."+self.xOrY+".axis")
+
+			self.jsonData.forEach(function(d,i){
+				if (i == 0){return}
+				var heightFactor = self.height;
+				var widthFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects())) +self.widthOfBar()/2;
+				if (self.horizontal){
+					heightFactor = (i * (self[self.widthOrHeight] / self.numberOfObjects())) +self.widthOfBar()/2;
+					widthFactor = 0;
+				}
+				$xaxis.clone().attr("transform","translate(" + widthFactor + ","+heightFactor+")").appendTo($xaxis.parent())				
+				
+			})
+	
+		}
+
 		//add teh zero line on top.
 		self.makeZeroLine();
 
@@ -247,7 +286,27 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 				
 		self.baseUpdate();
 		self.trigger("update:start");
-	
+
+		if (self.chartLayout == "sideBySide"){
+			self.lineChart
+			.transition()	        
+			.duration(1000)
+			.attr("transform", function(d,i){
+				if (!self.horizontal){
+					return 	"translate(" + (i * (self[self.widthOrHeight] / self.numberOfObjects())) + ",0)";				  	
+				}else{
+					return 	"translate(0," + (i * (self[self.widthOrHeight] / self.numberOfObjects())) + ")";				  						
+				}
+			});
+		}else{
+			self.lineChart
+				.transition()	        
+				.duration(1000)
+				.attr("transform", function(d,i){
+					return 	"translate(0,0)";				  	
+				});	
+		}	
+
 		self.exitLine = d3.svg.line()
 			[self.xOrY](function(d) { 
 				var theScale = 'category';

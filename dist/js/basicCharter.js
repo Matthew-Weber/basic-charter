@@ -2626,10 +2626,12 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	widthOrHeight: "width",
 	topOrLeft: "top",
 	bottomOrRight: "bottom",
+	firstRun: true,
 	rightOrBottom: "right",
 	recessionDateParse: d3.time.format("%m/%d/%Y").parse,
 	updateCount: 0,
 	divisor: 1,
+	visiblePosition: "onScreen",
 	annotationType: d3.annotationLabel,
 	timelineDate: d3.time.format("%m/%d/%Y"),
 	timelineDateDisplay: d3.time.format("%b %e, %Y"),
@@ -3000,6 +3002,10 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		if (self.annotations) {
 			self.labelAdder();
 		}
+
+		$(window).scroll(function () {
+			self.scrollAnimate();
+		});
 
 		$(window).on("resize", _.debounce(function (event) {
 			var width = self.$el.width();
@@ -3668,10 +3674,89 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		}
 	},
 
+	scrollAnimate: function scrollAnimate() {
+		var self = this;
+		if (Reuters.hasPym) {
+			return;
+		}
+
+		var scrollTop = $(window).scrollTop();
+		var offset = self.$el.offset().top;
+		var height = $(window).height();
+		var triggerPoint = scrollTop + height * .8;
+		var visiblePosition;
+
+		if (triggerPoint > offset) {
+			var visiblePosition = "onScreen";
+			if (self.visiblePosition == visiblePosition) {
+				return;
+			}
+			self.animateIn();
+		} else {
+			var visiblePosition = "offScreen";
+			if (self.visiblePosition == visiblePosition) {
+				return;
+			}
+			self.animateOut();
+		}
+
+		self.visiblePosition = visiblePosition;
+	},
+
+	animateIn: function animateIn() {
+		var self = this;
+		if (self.barChart) {
+			self.barChart.selectAll(".bar").transition().duration(1000).attr(self.yOrX, function (d) {
+				return self.yBarPosition(d);
+			}).attr(self.heightOrWidth, function (d) {
+				return self.barHeight(d);
+			}).attr(self.widthOrHeight, function (d, i, j) {
+				return self.barWidth(d, i, j);
+			}).attr(self.xOrY, function (d, i, j) {
+				return self.xBarPosition(d, i, j);
+			});
+		}
+		if (self.lineChart) {
+			self.lineChart.selectAll("path.line").transition().duration(1500).delay(function (d, i) {
+				return i * 100;
+			}).attrTween('d', function (d) {
+				var interpolate = d3.scale.quantile().domain([0, 1]).range(d3.range(1, d.values.length + 1));
+				return function (t) {
+					return self.line(d.values.slice(0, interpolate(t)));
+				};
+			});
+
+			self.lineChart.selectAll("path.area").transition().duration(1500).delay(function (d, i) {
+				return i * 100;
+			}).attrTween('d', function (d) {
+				var interpolate = d3.scale.quantile().domain([0, 1]).range(d3.range(1, d.values.length + 1));
+				return function (t) {
+					return self.area(d.values.slice(0, interpolate(t)));
+				};
+			});
+		}
+	},
+
+	animateOut: function animateOut() {
+		var self = this;
+
+		if (self.barChart) {
+			self.barChart.selectAll(".bar").transition().duration(1000).attr(self.heightOrWidth, 0).attr(self.yOrX, self.scales.y(0));
+		}
+		if (self.lineChart) {
+			self.lineChart.selectAll("path.line").attr("d", function (d) {
+				return self.line(d.values[0]);
+			});
+
+			self.lineChart.selectAll("path.area").attr("d", function (d) {
+				return self.area(d.values[0]);
+			});
+		}
+	},
+
 	baseUpdate: function baseUpdate(duration) {
 		var self = this;
 		self.trigger("baseUpdate:start");
-
 		if (!duration) {
 			duration = 1000;
 		}
@@ -3746,6 +3831,10 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				return "translate(" + widthFactor + "," + heightFactor + ")";
 			}
 		}).call(self.yAxis).each("end", function (d) {
+			if (self.firstRun) {
+				self.firstRun = false;
+				return;
+			}
 			if (self.updateCount === 0) {
 				self.updateCount++;
 				setTimeout(function () {
@@ -3759,37 +3848,6 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		if (!self.horizontal) {
 			self.svg.selectAll(".y.axis line").attr("x1", "-" + self.margin.left);
 		}
-
-		//fix, tier is all screwy, should just rethink
-		if (self.chartLayout == "tier") {
-
-			self.barChart.selectAll("." + self.yOrX + ".axis").remove();
-
-			self.barChart.append("svg:g").attr("class", self.yOrX + " axis").attr("transform", function (d) {
-				if (self.horizontal) {
-					return "translate(0," + self.height + ")";
-				} else {
-					return "translate(0,0)";
-				}
-			});
-
-			self.barChart.data(self.chartData, function (d) {
-				return d.name;
-			}).selectAll("." + self.yOrX + ".axis").call(self[self.yOrX + "Axis"]);
-			self.barChart.each(function (d) {
-				var thisId = $(this).attr("id");
-				var barAxis = $("#" + thisId + " .axis").detach();
-				barAxis.prependTo($(this));
-			});
-		} else {}
-		//FIX what's up here?
-		/*
-  		    if (self.chartType == "bar"){
-  			    self.barChart.selectAll("." + self.yOrX + ".axis")
-  				    .remove();
-  			}
-  */
-
 
 		//update the top tick label
 		self.topTick(self.dataLabels);

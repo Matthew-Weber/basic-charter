@@ -3833,6 +3833,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		}).call(self.yAxis).each("end", function (d) {
 			if (self.firstRun) {
 				self.firstRun = false;
+				self.labelUpdate();
 				return;
 			}
 			if (self.updateCount === 0) {
@@ -3876,21 +3877,24 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		if (self.zoom) {
 			self.zoom.x(self.scales.x).y(self.scales.y);
 		}
-
-		if (self.annotationGroup) {
-
-			self.annotationData = self.options.annotations(self);
-
-			self.makeAnnotations.annotations(self.annotationData);
-
-			self.makeAnnotations.updatedAccessors();
-			self.svg.select("g.annotation-group")
-			//				.transition()
-			.call(self.makeAnnotations);
-		}
+		self.labelUpdate();
 
 		self.trigger("baseUpdate:end");
 		//end of base update	
+	},
+	labelUpdate: function labelUpdate() {
+		var self = this;
+		if (!self.annotationGroup) {
+			return;
+		}
+		self.annotationData = self.options.annotations(self);
+
+		self.makeAnnotations.annotations(self.annotationData);
+
+		self.makeAnnotations.updatedAccessors();
+		self.svg.select("g.annotation-group")
+		//				.transition()
+		.call(self.makeAnnotations);
 	},
 
 	zoomChart: function zoomChart() {

@@ -66,7 +66,6 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		}else{			
 			return d3.scale.linear()
 				.domain([this.yScaleVals[0],this.yScaleVals[this.yScaleVals.length - 1]])
-				.nice(this.yScaleTicks)
 				.range(this.yScaleRange());
 		}
 	},

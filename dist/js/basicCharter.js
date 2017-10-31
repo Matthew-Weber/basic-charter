@@ -2419,15 +2419,17 @@ Reuters.Graphics.DataSeriesModel = Backbone.Model.extend({
 			if (previousItem) {
 				var previousValue = currentValue;
 				if (previousItem.get(name)) {
-					previousValue = parseFloat(previousItem.get(name).value);
+					if (previousItem.get(name).value) {
+						previousValue = parseFloat(previousItem.get(name).value);
+					}
 				}
 				change = currentValue - previousValue;
 				totalChange += change;
 				cumulate += currentValue;
 				percent = (currentValue / firstValue - 1) * 100;
-				currentItemInLoop.set(name, { changePreMonth: change, cumulate: cumulate, CumulativeChange: totalChange, percentChange: percent, value: currentValue / options.collection.divisor });
+				currentItemInLoop.set(name, { changePreMonth: change, cumulate: cumulate, cumulativeChange: totalChange, percentChange: percent, value: currentValue / options.collection.divisor });
 			} else {
-				currentItemInLoop.set(name, { changePreMonth: 0, cumulate: currentValue, CumulativeChange: 0, percentChange: 0, value: currentValue / options.collection.divisor });
+				currentItemInLoop.set(name, { changePreMonth: 0, cumulate: currentValue, cumulativeChange: 0, percentChange: 0, value: currentValue / options.collection.divisor });
 			}
 		});
 	},

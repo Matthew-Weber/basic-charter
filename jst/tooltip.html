@@ -5,6 +5,9 @@
 <%}else{%>
 	<div class='dateTip'> <%=t.data[0].category%> </div>
 <%}%>
+<%if (t.self.xScaleColumn){%>
+	<div class='dateTip'> <%=t.data[0][t.self.xScaleColumn]%> </div>
+<%}%>
 
 <%t.data.forEach(function(d,i){%>
 		<div class="tipHolder">

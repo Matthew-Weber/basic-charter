@@ -12,6 +12,11 @@ Reuters.Graphics.DataPointModel = Backbone.Model.extend({
 			point.date = options.collection.parseDate(point.date);
 			point.displayDate = options.collection.dateFormat(point.date);
 		}
+
+		if (options.collection.xScaleColumn){
+			point[options.collection.xScaleColumn] = parseFloat(point[options.collection.xScaleColumn]);
+			return point
+		}
 		return point;
 	},
 });
@@ -27,7 +32,9 @@ Reuters.Graphics.DataPointCollection = Backbone.Collection.extend({
 	
 	comparator: function(item) {
 		var self = this;
-		return item.get("date");
+		if (item.get("date")){return item.get("date")}
+
+		return parseFloat(item.get(item.collection.xScaleColumn))
     },
 	
 	model: Reuters.Graphics.DataPointModel,

@@ -154,16 +154,16 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	},
 	parseData: function (data){			
 		var self = this;
-
+		data = JSON.parse(JSON.stringify(data));
 		if (self.dataStream){
 			var response = data.DataResponse || data.DataResponses[0]
 			data = self.formatDataStream(response)
 		}
 
 		//figuring out if there is a timescale, is this necessary?
-		if (data[0].date){self.hasTimeScale = true;}
+		if (data[0].date && !self.xScaleColumn){self.hasTimeScale = true;}
 		// if parser undefined, figure out if it's a 4 year or 2 year date and set parser to match		
-		if (self.hasTimeScale && !self.parseDate){
+		if (data[0].date && !self.parseDate ){
 			if (data[0].date.split('/')[2].length == 2){						
 				 self.parseDate = d3.time.format("%m/%d/%y").parse;
 			}
@@ -247,10 +247,10 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		var self = this;
 		
 		if (!self.groupedData){self.groupedData = {};}
-		self.groupedData[name] = new Reuters.Graphics.DataPointCollection([],{parseDate:self.parseDate, dateFormat:self.dateFormat });
+		self.groupedData[name] = new Reuters.Graphics.DataPointCollection([],{parseDate:self.parseDate,xScaleColumn:self.xScaleColumn, dateFormat:self.dateFormat });
 		self.groupedData[name].reset(data, {parse:true});
 
-		self[name] = new Reuters.Graphics.DateSeriesCollection([], {parseDate:self.parseDate, groupSort:self.groupSort, divisor:self.divisor, categorySort:self.categorySort, dataType:self.dataType, multiDataColumns:self.multiDataColumns, dateFormat:self.dateFormat});
+		self[name] = new Reuters.Graphics.DateSeriesCollection([], {parseDate:self.parseDate, xScaleColumn:self.xScaleColumn,groupSort:self.groupSort, divisor:self.divisor, categorySort:self.categorySort, dataType:self.dataType, multiDataColumns:self.multiDataColumns, dateFormat:self.dateFormat});
 		
 		self[name].reset(
 			self.columnNames.map(function(d,i){
@@ -546,7 +546,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			});
 		}	
 
-		if (self.hasTimeScale || self.options.xTickFormat){
+		if ((self.hasTimeScale && !self.xScaleColumn) || self.options.xTickFormat){
 			self[self.xOrY+"Axis"].tickFormat(self.xTickFormat);
 		}	
 
@@ -730,7 +730,11 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				
 			}
 
-		if (self.hasTimeScale){
+		if (self.hasTimeScale || self.xScaleColumn){
+			var	theScale = 'date';
+			if (self.xScaleColumn){
+				theScale = self.xScaleColumn
+			}
 			self.locationDate = self.scales.x.invert(indexLocation);
 			self.chartData.first().get("values").each(function(d,i){
 				var include;
@@ -742,8 +746,8 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 					}
 				})
 				if (!include && !self.showZeros){return}				
-				if (self.closestData === null || Math.abs(d.get("date") - self.locationDate) < Math.abs(self.closestData - self.locationDate)){
-					self.closestData = d.get("date");
+				if (self.closestData === null || Math.abs(d.get(theScale) - self.locationDate) < Math.abs(self.closestData - self.locationDate)){
+					self.closestData = d.get(theScale);
 				}			
 			});
 			if (self.timelineData){
@@ -836,13 +840,16 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				});
 
 			self.legendDate.html(function(){
+				if (self.xScaleColumn){
+					return legendData[0][self.xScaleColumn]
+				}
 				if (legendData[0].category){
 					return legendData[0].category;
 				}
 				if (legendData[0].quarters){
                     return legendData[0].quarters + legendData[0].displayDate;
                 }				
-				return legendData[0].displayDate;				
+				return legendData[0].displayDate 				
 			});
 						
 			self.setLegendPositions();
@@ -883,6 +890,10 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		if (self.hasTimeScale){
 			xDataType = "date";
 		}
+		if (self.xScaleColumn){
+			xDataType = self.xScaleColumn
+		}			
+		
 		var filtered = self.chartData.filter(function(d){
 				return d.get("visible");
 		});

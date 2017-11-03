@@ -25,6 +25,7 @@
 //			yScaleVals: [0,100],
 //			tickAll:true, //if you make tickAll anything, it will put a tick for each point.
 //			horizontal:true,
+//			xScaleColumn:"days",
 //			margin: {top: 60, right: 80, bottom: 60, left: 130},
 //			groupSort:"ascending", // ascending descending or array or 'none'
 //			categorySort:"ascending", //ascending descending, array or 'none'

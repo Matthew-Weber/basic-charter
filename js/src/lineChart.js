@@ -7,10 +7,19 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 	//setup the scales.  You have to do this in the specific view, it will be called in the Reuters.Graphics.ChartBase.
 	chartType:"line",
 	xScaleMin:function(){
-		return d3.min(this.jsonData, function(c) { return d3.min(c.values, function(v) { return v.date; }); });
+		var xcolumn = "date"
+		if (this.xScaleColumn){
+			xcolumn = this.xScaleColumn
+		}
+		
+		return d3.min(this.jsonData, function(c) { return d3.min(c.values, function(v) { return v[xcolumn]; }); });
 	},
 	xScaleMax:function(){
-		return d3.max(this.jsonData, function(c) { return d3.max(c.values, function(v) { return v.date; }); });
+		var xcolumn = "date"
+		if (this.xScaleColumn){
+			xcolumn = this.xScaleColumn
+		}
+		return d3.max(this.jsonData, function(c) { return d3.max(c.values, function(v) { return v[xcolumn]; }); });
 	},
 	xScaleRange:function(){
 		var range = [0, this[this.widthOrHeight]]
@@ -20,7 +29,11 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		return range;
 	},	
 	getXScale: function() {
-		
+		if(this.xScaleColumn){
+			return d3.scale.linear()
+				.domain([this.xScaleMin(),this.xScaleMax()])
+				.range(this.xScaleRange());			
+		}
 		if (this.hasTimeScale){		
 			return d3.time.scale()
 				.domain([this.xScaleMin(),this.xScaleMax()])
@@ -73,7 +86,6 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		// create a variable called "self" to hold a reference to "this"
 		var self = this;
 		self.trigger("renderChart:start");
-		
 		if (self.hasZoom){
 			self.zoomChart();		
 		}
@@ -83,6 +95,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		    	var theScale = 'category';
 				if (self.hasTimeScale) {
 					theScale = 'date';
+				}
+				if (self.xScaleColumn){
+					theScale = self.xScaleColumn
 				}			
 		    	return self.scales.x(d[theScale]); 
 		    })
@@ -101,7 +116,10 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		    	var theScale = 'category';
 				if (self.hasTimeScale) {
 					theScale = 'date';
-				}			
+				}
+				if (self.xScaleColumn){
+					theScale = self.xScaleColumn
+				}								
 		    	return self.scales.x(d[theScale]); 		    	
 	    	})
 		    [self.yOrX+"0"](function(d) { 
@@ -212,6 +230,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 				if (self.hasTimeScale) {
 					theScale = 'date';
 				}
+				if (self.xScaleColumn){
+					theScale = self.xScaleColumn
+				}					
 				return self.scales.x(d[theScale]);
 			})
 			.attr("c"+self.yOrX,function(d,i){
@@ -243,7 +264,10 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 				var theScale = 'category';
 				if (self.hasTimeScale) {
 					theScale = 'date';
-				}					
+				}
+				if (self.xScaleColumn){
+					theScale = self.xScaleColumn
+				}										
 				if (self.timelineDataGrouped){
 					if (self.timelineDataGrouped[self.timelineDate(d[theScale])]){
 						return true;
@@ -311,7 +335,10 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 				var theScale = 'category';
 				if (self.hasTimeScale) {
 					theScale = 'date';
-				}	
+				}
+				if (self.xScaleColumn){
+					theScale = self.xScaleColumn
+				}						
 				return self.scales.x(d[theScale]); 
 			})
 			[self.yOrX](function(d) { return  self.margin[self.bottomOrRight]+self[self.heightOrWidth]+self.margin[self.topOrLeft]+10;})
@@ -322,7 +349,10 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 				var theScale = 'category';
 				if (self.hasTimeScale) {
 					theScale = 'date';
-				}	
+				}
+				if (self.xScaleColumn){
+					theScale = self.xScaleColumn
+				}						
 				return self.scales.x(d[theScale]); 
 			})
 			[self.yOrX+"0"](function(d) { return  self.margin[self.bottomOrRight]+self[self.heightOrWidth]+self.margin[self.topOrLeft]+10;})
@@ -404,7 +434,10 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 				var theScale = 'category';
 				if (self.hasTimeScale) {
 					theScale = 'date';
-				}	
+				}
+				if (self.xScaleColumn){
+					theScale = self.xScaleColumn
+				}						
 			    return self.scales.x(d[theScale]);
 
 			    })
@@ -436,7 +469,10 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 				var theScale = 'category';
 				if (self.hasTimeScale) {
 					theScale = 'date';
-				}	
+				}
+				if (self.xScaleColumn){
+					theScale = self.xScaleColumn
+				}						
 				return self.scales.x(d[theScale]);
 			})
 			.attr("c"+self.yOrX,function(d,i){

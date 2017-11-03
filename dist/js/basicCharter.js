@@ -114,6 +114,11 @@
 			;
 			__p += '\n	<div class=\'dateTip\'> ' + ((__t = t.data[0].category) == null ? '' : __t) + ' </div>\n';
 		};
+		__p += '\n';
+		if (t.self.xScaleColumn) {
+			;
+			__p += '\n	<div class=\'dateTip\'> ' + ((__t = t.data[0][t.self.xScaleColumn]) == null ? '' : __t) + ' </div>\n';
+		};
 		__p += '\n\n';
 		t.data.forEach(function (d, i) {
 			;
@@ -2369,6 +2374,11 @@ Reuters.Graphics.DataPointModel = Backbone.Model.extend({
 			point.date = options.collection.parseDate(point.date);
 			point.displayDate = options.collection.dateFormat(point.date);
 		}
+
+		if (options.collection.xScaleColumn) {
+			point[options.collection.xScaleColumn] = parseFloat(point[options.collection.xScaleColumn]);
+			return point;
+		}
 		return point;
 	}
 });
@@ -2384,7 +2394,11 @@ Reuters.Graphics.DataPointCollection = Backbone.Collection.extend({
 
 	comparator: function comparator(item) {
 		var self = this;
-		return item.get("date");
+		if (item.get("date")) {
+			return item.get("date");
+		}
+
+		return parseFloat(item.get(item.collection.xScaleColumn));
 	},
 
 	model: Reuters.Graphics.DataPointModel,
@@ -2753,18 +2767,18 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	},
 	parseData: function parseData(data) {
 		var self = this;
-
+		data = JSON.parse(JSON.stringify(data));
 		if (self.dataStream) {
 			var response = data.DataResponse || data.DataResponses[0];
 			data = self.formatDataStream(response);
 		}
 
 		//figuring out if there is a timescale, is this necessary?
-		if (data[0].date) {
+		if (data[0].date && !self.xScaleColumn) {
 			self.hasTimeScale = true;
 		}
 		// if parser undefined, figure out if it's a 4 year or 2 year date and set parser to match		
-		if (self.hasTimeScale && !self.parseDate) {
+		if (data[0].date && !self.parseDate) {
 			if (data[0].date.split('/')[2].length == 2) {
 				self.parseDate = d3.time.format("%m/%d/%y").parse;
 			}
@@ -2848,10 +2862,10 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		if (!self.groupedData) {
 			self.groupedData = {};
 		}
-		self.groupedData[name] = new Reuters.Graphics.DataPointCollection([], { parseDate: self.parseDate, dateFormat: self.dateFormat });
+		self.groupedData[name] = new Reuters.Graphics.DataPointCollection([], { parseDate: self.parseDate, xScaleColumn: self.xScaleColumn, dateFormat: self.dateFormat });
 		self.groupedData[name].reset(data, { parse: true });
 
-		self[name] = new Reuters.Graphics.DateSeriesCollection([], { parseDate: self.parseDate, groupSort: self.groupSort, divisor: self.divisor, categorySort: self.categorySort, dataType: self.dataType, multiDataColumns: self.multiDataColumns, dateFormat: self.dateFormat });
+		self[name] = new Reuters.Graphics.DateSeriesCollection([], { parseDate: self.parseDate, xScaleColumn: self.xScaleColumn, groupSort: self.groupSort, divisor: self.divisor, categorySort: self.categorySort, dataType: self.dataType, multiDataColumns: self.multiDataColumns, dateFormat: self.dateFormat });
 
 		self[name].reset(self.columnNames.map(function (d, i) {
 			return { name: d, displayName: self.columnNamesDisplay[i], values: self.groupedData[name] };
@@ -3125,7 +3139,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			});
 		}
 
-		if (self.hasTimeScale || self.options.xTickFormat) {
+		if (self.hasTimeScale && !self.xScaleColumn || self.options.xTickFormat) {
 			self[self.xOrY + "Axis"].tickFormat(self.xTickFormat);
 		}
 
@@ -3294,7 +3308,11 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			}
 		}
 
-		if (self.hasTimeScale) {
+		if (self.hasTimeScale || self.xScaleColumn) {
+			var theScale = 'date';
+			if (self.xScaleColumn) {
+				theScale = self.xScaleColumn;
+			}
 			self.locationDate = self.scales.x.invert(indexLocation);
 			self.chartData.first().get("values").each(function (d, i) {
 				var include;
@@ -3312,8 +3330,8 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				if (!include && !self.showZeros) {
 					return;
 				}
-				if (self.closestData === null || Math.abs(d.get("date") - self.locationDate) < Math.abs(self.closestData - self.locationDate)) {
-					self.closestData = d.get("date");
+				if (self.closestData === null || Math.abs(d.get(theScale) - self.locationDate) < Math.abs(self.closestData - self.locationDate)) {
+					self.closestData = d.get(theScale);
 				}
 			});
 			if (self.timelineData) {
@@ -3407,6 +3425,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			});
 
 			self.legendDate.html(function () {
+				if (self.xScaleColumn) {
+					return legendData[0][self.xScaleColumn];
+				}
 				if (legendData[0].category) {
 					return legendData[0].category;
 				}
@@ -3451,6 +3472,10 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		if (self.hasTimeScale) {
 			xDataType = "date";
 		}
+		if (self.xScaleColumn) {
+			xDataType = self.xScaleColumn;
+		}
+
 		var filtered = self.chartData.filter(function (d) {
 			return d.get("visible");
 		});
@@ -4018,16 +4043,25 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 	//setup the scales.  You have to do this in the specific view, it will be called in the Reuters.Graphics.ChartBase.
 	chartType: "line",
 	xScaleMin: function xScaleMin() {
+		var xcolumn = "date";
+		if (this.xScaleColumn) {
+			xcolumn = this.xScaleColumn;
+		}
+
 		return d3.min(this.jsonData, function (c) {
 			return d3.min(c.values, function (v) {
-				return v.date;
+				return v[xcolumn];
 			});
 		});
 	},
 	xScaleMax: function xScaleMax() {
+		var xcolumn = "date";
+		if (this.xScaleColumn) {
+			xcolumn = this.xScaleColumn;
+		}
 		return d3.max(this.jsonData, function (c) {
 			return d3.max(c.values, function (v) {
-				return v.date;
+				return v[xcolumn];
 			});
 		});
 	},
@@ -4039,7 +4073,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 		return range;
 	},
 	getXScale: function getXScale() {
-
+		if (this.xScaleColumn) {
+			return d3.scale.linear().domain([this.xScaleMin(), this.xScaleMax()]).range(this.xScaleRange());
+		}
 		if (this.hasTimeScale) {
 			return d3.time.scale().domain([this.xScaleMin(), this.xScaleMax()]).range(this.xScaleRange());
 		} else {
@@ -4105,7 +4141,6 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 		// create a variable called "self" to hold a reference to "this"
 		var self = this;
 		self.trigger("renderChart:start");
-
 		if (self.hasZoom) {
 			self.zoomChart();
 		}
@@ -4114,6 +4149,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			var theScale = 'category';
 			if (self.hasTimeScale) {
 				theScale = 'date';
+			}
+			if (self.xScaleColumn) {
+				theScale = self.xScaleColumn;
 			}
 			return self.scales.x(d[theScale]);
 		})[self.yOrX](function (d) {
@@ -4134,6 +4172,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			var theScale = 'category';
 			if (self.hasTimeScale) {
 				theScale = 'date';
+			}
+			if (self.xScaleColumn) {
+				theScale = self.xScaleColumn;
 			}
 			return self.scales.x(d[theScale]);
 		})[self.yOrX + "0"](function (d) {
@@ -4240,6 +4281,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			if (self.hasTimeScale) {
 				theScale = 'date';
 			}
+			if (self.xScaleColumn) {
+				theScale = self.xScaleColumn;
+			}
 			return self.scales.x(d[theScale]);
 		}).attr("c" + self.yOrX, function (d, i) {
 			if (self.chartLayout == "stackTotal") {
@@ -4277,6 +4321,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			var theScale = 'category';
 			if (self.hasTimeScale) {
 				theScale = 'date';
+			}
+			if (self.xScaleColumn) {
+				theScale = self.xScaleColumn;
 			}
 			if (self.timelineDataGrouped) {
 				if (self.timelineDataGrouped[self.timelineDate(d[theScale])]) {
@@ -4338,6 +4385,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			if (self.hasTimeScale) {
 				theScale = 'date';
 			}
+			if (self.xScaleColumn) {
+				theScale = self.xScaleColumn;
+			}
 			return self.scales.x(d[theScale]);
 		})[self.yOrX](function (d) {
 			return self.margin[self.bottomOrRight] + self[self.heightOrWidth] + self.margin[self.topOrLeft] + 10;
@@ -4347,6 +4397,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			var theScale = 'category';
 			if (self.hasTimeScale) {
 				theScale = 'date';
+			}
+			if (self.xScaleColumn) {
+				theScale = self.xScaleColumn;
 			}
 			return self.scales.x(d[theScale]);
 		})[self.yOrX + "0"](function (d) {
@@ -4422,6 +4475,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			if (self.hasTimeScale) {
 				theScale = 'date';
 			}
+			if (self.xScaleColumn) {
+				theScale = self.xScaleColumn;
+			}
 			return self.scales.x(d[theScale]);
 		}).attr("r", function (d, i) {
 			if (isNaN(d[self.dataType])) {
@@ -4446,6 +4502,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			var theScale = 'category';
 			if (self.hasTimeScale) {
 				theScale = 'date';
+			}
+			if (self.xScaleColumn) {
+				theScale = self.xScaleColumn;
 			}
 			return self.scales.x(d[theScale]);
 		}).attr("c" + self.yOrX, function (d, i) {

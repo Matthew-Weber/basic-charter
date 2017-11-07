@@ -1954,7 +1954,9 @@
       });
       var word = void 0,
           line$$1 = [],
-          tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", 0.8 + "em");
+
+      //matt dy was 0.8
+      tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", 0 + "em");
 
       while (word = words.pop()) {
         line$$1.push(word);

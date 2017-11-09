@@ -154,29 +154,30 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 	
 	barFill:function (d,i,j){
 		var self = this;
+		var color = self.colorScale(d.name)
 		if (self.colorUpDown){
 			if (d[self.dataType] > 0){
-				return self.colorScale.range()[0];
+				color = self.colorScale.range()[0];
 			}else{
-				return self.colorScale.range()[1];
+				color =  self.colorScale.range()[1];
 			}					  						  	
 		}
 		if(self.chartLayout == "outlineBar"){
 			if (j == 1){return "none"}  			
 		}		
 		if (self.hashAfterDate){
-				var cutoffDate = self.parseDate(self.hashAfterDate);
-                var strokecolor = d3.rgb(self.colorScale(d.name)).darker(0.8);
-                self.t = textures.lines().size(7).stroke(strokecolor).background(self.colorScale(d.name));
-                self.svg.call(self.t);
-                if (d.date > cutoffDate){
-                    return self.t.url()
-                }
-                return self.colorScale(d.name);
+			var cutoffDate = self.parseDate(self.hashAfterDate);
+            var strokecolor = d3.rgb(color).darker(0.8);
+            self.t = textures.lines().size(7).stroke(strokecolor).background(color);
+            self.svg.call(self.t);
+            if (d.date > cutoffDate){
+                return self.t.url()
+            }
+            return color;
 		}
 		
 		
-		return self.colorScale(d.name);
+		return color;
 		
 	},
 	

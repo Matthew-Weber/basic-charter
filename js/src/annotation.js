@@ -1684,12 +1684,12 @@ var d3NoteText = function (_Type) {
           title.text(this.annotation.note.title);
           title.attr("fill", this.annotation.color);
           title.attr("font-weight", "bold");
-          title.call(wrap, wrapLength);
+          title.call(wrap, wrapLength,this.annotation.note.dyOffset);
           titleBBox = title.node().getBBox();
         }
 
         label.text(this.annotation.note.label).attr("dx", "0");
-        label.call(wrap, wrapLength);
+        label.call(wrap, wrapLength,this.annotation.note.dyOffset);
 
         label.attr("y", titleBBox.height * 1.1 || 0);
         label.attr("fill", this.annotation.color);
@@ -1806,7 +1806,7 @@ var addHandlers = function addHandlers(dispatcher, annotation, _ref3) {
 };
 
 //Text wrapping code adapted from Mike Bostock
-var wrap = function wrap(text, width) {
+var wrap = function wrap(text, width, dy) {
   var lineHeight = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1.2;
 
   text.each(function () {
@@ -1817,7 +1817,7 @@ var wrap = function wrap(text, width) {
     var word = void 0,
         line$$1 = [],
         //matt dy was 0.8
-        tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", 0 + "em");
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("dy", dy + "em");
 
     while (word = words.pop()) {
       line$$1.push(word);

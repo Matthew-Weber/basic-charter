@@ -78,7 +78,9 @@
 			          note: {
 			            label: "Basic settings with subject position(x,y) and a note offset(dx, dy)",
 			            title: "basic",
-			            wrap:150
+			            wrap:150,
+						//dyOffset:0.8,	            
+			            
 			          },
 			          data:{date:"02/05/2016",yvalue:1880},
 			          dy: -30,
@@ -90,6 +92,7 @@
 			            label: "Added connector end 'arrow', note wrap '180', and note align 'left'",
 			            title: "Arrow", // commenting this out will make no title
 			            wrap: 150, // how wide do you want it to be
+						//dyOffset:0.8,	            
 			            align: "left" // will the blurb be centered at the connection point, or left or right aligned?
 			          },
 			          className:"special-blurb", // add a specific class
@@ -107,7 +110,8 @@
 			          note: {
 			            label: "Changed connector type to 'curve'",
 			            title: "dot and curve",
-			            wrap: 0
+			            wrap: 0,
+						//dyOffset:0.8,	            
 			          },
 			          connector: {
 			            end: "dot",
@@ -125,6 +129,7 @@
 			            label: "A different annotation type",
 			            title: "It's a circle",
 			            wrap: 100,
+						//dyOffset:0.8,	            			            
 			            align: "middle"		            
 			          },
 			          subject: {

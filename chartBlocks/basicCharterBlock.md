@@ -80,7 +80,8 @@
 			            title: "basic",
 			            wrap:150,
 						//dyOffset:0.8,	            
-			            
+						//dyOffsetLabel:-0.8,
+						//dyOffsetTitle:-0.8,			            
 			          },
 			          data:{date:"02/05/2016",yvalue:1880},
 			          dy: -30,

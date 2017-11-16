@@ -1822,12 +1822,17 @@
             title.text(this.annotation.note.title);
             title.attr("fill", this.annotation.color);
             title.attr("font-weight", "bold");
-            title.call(wrap, wrapLength, this.annotation.note.dyOffset);
+
+            var titleDy = this.annotation.note.dyOffsetTitle || this.annotation.note.dyOffset;
+
+            title.call(wrap, wrapLength, titleDy);
             titleBBox = title.node().getBBox();
           }
 
+          var labelDy = this.annotation.note.dyOffsetLabel || this.annotation.note.dyOffset;
+
           label.text(this.annotation.note.label).attr("dx", "0");
-          label.call(wrap, wrapLength, this.annotation.note.dyOffset);
+          label.call(wrap, wrapLength, labelDy);
 
           label.attr("y", titleBBox.height * 1.1 || 0);
           label.attr("fill", this.annotation.color);

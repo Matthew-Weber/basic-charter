@@ -1227,11 +1227,11 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 
 		}
 		if (self.lineChart){
-			self.lineChart.selectAll("path.line")
+			self.lineChart.selectAll("path.line").transition()
 				.attr("d", function(d) {return self.line(d.values[0]); })
 
 			
-			self.lineChart.selectAll("path.area")
+			self.lineChart.selectAll("path.area").transition()
 				.attr("d", function(d) {return self.area(d.values[0]); })	
 
 		}

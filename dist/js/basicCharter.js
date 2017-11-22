@@ -3778,11 +3778,11 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			self.barChart.selectAll(".bar").transition().duration(1000).attr(self.heightOrWidth, 0).attr(self.yOrX, self.scales.y(0));
 		}
 		if (self.lineChart) {
-			self.lineChart.selectAll("path.line").attr("d", function (d) {
+			self.lineChart.selectAll("path.line").transition().attr("d", function (d) {
 				return self.line(d.values[0]);
 			});
 
-			self.lineChart.selectAll("path.area").attr("d", function (d) {
+			self.lineChart.selectAll("path.area").transition().attr("d", function (d) {
 				return self.area(d.values[0]);
 			});
 		}

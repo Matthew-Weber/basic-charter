@@ -4360,7 +4360,7 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 
 		//add teh zero line on top.
 		self.makeZeroLine();
-
+		self.scrollAnimate();
 		self.trigger("renderChart:end");
 		self.trigger("chart:loaded");
 		self.trigger("chart:loaded");
@@ -4869,6 +4869,7 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 
 		//add teh zero line on top.
 		self.makeZeroLine();
+		self.scrollAnimate();
 		self.trigger("renderChart:end");
 		self.trigger("chart:loaded");
 

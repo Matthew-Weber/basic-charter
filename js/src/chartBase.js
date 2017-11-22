@@ -349,6 +349,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		self.legendDiv = self.targetDiv + " .legend";
 		self.$chartEl = $("#"+self.chartDiv);
 		self.$legendEl = $("#"+self.legendDiv);
+		self.masterWidth = self.$el.width();
 
 						
 		//set the width and the height to be the width and height of the div the chart is rendered in
@@ -415,12 +416,16 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			self.labelAdder();
 		}
 		
-		$(window).scroll(function(){
+		$(window).scroll(_.debounce(function () {
 			self.scrollAnimate();
-		})
+		}, 100));
 				
 		$(window).on("resize", _.debounce(function(event) {
-			var width =  self.$el.width();
+			var width = self.$el.width();
+			if (width == self.masterWidth){
+				return;
+			}
+			self.masterWidth = width;
 			if (width < self.chartBreakPoint){
 				self.$el.find('.chart-holder').addClass("smaller");
 			}else{
@@ -1228,11 +1233,11 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		}
 		if (self.lineChart){
 			self.lineChart.selectAll("path.line").transition()
-				.attr("d", function(d) {return self.line(d.values[0]); })
+				.attr("d", function(d) {return self.line([d.values[0]]); })
 
 			
 			self.lineChart.selectAll("path.area").transition()
-				.attr("d", function(d) {return self.area(d.values[0]); })	
+				.attr("d", function(d) {return self.area([d.values[0]]); })	
 
 		}
 

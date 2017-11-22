@@ -185,7 +185,7 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		self.lineChart.append("path")
 			.attr("class", "line")
 			.style("stroke", function(d) { return self.colorScale(d.name); })
-			.attr("d", function(d) {return self.line(d.values[0]); })
+			.attr("d", function(d) {return self.line([d.values[0]]); })
 			.transition()
 			.duration(1500)
 			.delay(function(d, i) { return i * 100; })
@@ -297,7 +297,6 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 
 		//add teh zero line on top.
 		self.makeZeroLine();
-		self.scrollAnimate();		
 		self.trigger("renderChart:end");
 		self.trigger("chart:loaded");
 		self.trigger("chart:loaded");

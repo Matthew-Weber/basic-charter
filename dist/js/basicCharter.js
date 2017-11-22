@@ -2968,6 +2968,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		self.legendDiv = self.targetDiv + " .legend";
 		self.$chartEl = $("#" + self.chartDiv);
 		self.$legendEl = $("#" + self.legendDiv);
+		self.masterWidth = self.$el.width();
 
 		//set the width and the height to be the width and height of the div the chart is rendered in
 		self.width = self.$chartEl.width() - self.margin.left - self.margin.right;
@@ -3026,12 +3027,16 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			self.labelAdder();
 		}
 
-		$(window).scroll(function () {
+		$(window).scroll(_.debounce(function () {
 			self.scrollAnimate();
-		});
+		}, 100));
 
 		$(window).on("resize", _.debounce(function (event) {
 			var width = self.$el.width();
+			if (width == self.masterWidth) {
+				return;
+			}
+			self.masterWidth = width;
 			if (width < self.chartBreakPoint) {
 				self.$el.find('.chart-holder').addClass("smaller");
 			} else {
@@ -3779,11 +3784,11 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		}
 		if (self.lineChart) {
 			self.lineChart.selectAll("path.line").transition().attr("d", function (d) {
-				return self.line(d.values[0]);
+				return self.line([d.values[0]]);
 			});
 
 			self.lineChart.selectAll("path.area").transition().attr("d", function (d) {
-				return self.area(d.values[0]);
+				return self.area([d.values[0]]);
 			});
 		}
 	},
@@ -4251,7 +4256,7 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 		self.lineChart.append("path").attr("class", "line").style("stroke", function (d) {
 			return self.colorScale(d.name);
 		}).attr("d", function (d) {
-			return self.line(d.values[0]);
+			return self.line([d.values[0]]);
 		}).transition().duration(1500).delay(function (d, i) {
 			return i * 100;
 		}).attrTween('d', function (d) {
@@ -4360,7 +4365,6 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 
 		//add teh zero line on top.
 		self.makeZeroLine();
-		self.scrollAnimate();
 		self.trigger("renderChart:end");
 		self.trigger("chart:loaded");
 		self.trigger("chart:loaded");
@@ -4869,7 +4873,6 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 
 		//add teh zero line on top.
 		self.makeZeroLine();
-		self.scrollAnimate();
 		self.trigger("renderChart:end");
 		self.trigger("chart:loaded");
 

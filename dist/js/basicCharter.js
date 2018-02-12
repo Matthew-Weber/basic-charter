@@ -4026,12 +4026,23 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				return self.scales.y(d.yvalue);
 			}), _self$makeAnnotations)).accessorsInverse({
 				date: function date(d) {
+					if (!self.scales.x.invert) {
+						return d.x;
+					}
 					return self.dateFormat(self.scales.x.invert(d.x));
 				},
 				xvalue: function xvalue(d) {
+					if (!self.scales.x.invert) {
+						return d.x;
+					}
+
 					return self.scales.x.invert(d.x);
 				},
 				yvalue: function yvalue(d) {
+					if (!self.scales.y.invert) {
+						return d.y;
+					}
+
 					return self.scales.y.invert(d.y);
 				}
 			});

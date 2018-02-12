@@ -1516,12 +1516,25 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			  })
 			  .accessorsInverse({
 			     date:function(d){
+					if (!self.scales.x.invert){
+						return d.x
+					}				     
 					return self.dateFormat(self.scales.x.invert(d.x))						
 				},
 				xvalue:function(d){
+					if (!self.scales.x.invert){
+						return d.x
+					}
+
 					return self.scales.x.invert(d.x)					
 				},
-			    yvalue: d => self.scales.y.invert(d.y)
+			    yvalue: function(d){
+  					if (!self.scales.y.invert){
+						return d.y
+					}
+
+				    return self.scales.y.invert(d.y)
+				   }
 			  })
 
 

@@ -71,11 +71,28 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	initialize: function(opts){
 		var self = this;
 		this.options = opts; 		
-		
+
 		// if we are passing in options, use them instead of the defualts.
 		_.each(opts, function(item, key){
 			self[key] = item;
 		});	
+		if (self.isPoll){
+			self.moeLabelObj = self.columnNames;
+			self.options.colors[self.centerCol] = "none";
+			self.colors[self.centerCol] = "none";
+			self.legendItemsArray = [self.rightBarCol, self.centerCol, self.leftBarCol];			
+			self.hasLegend = false;
+			self.options.hasLegend = false;
+			self.horizontal=true;
+			self.chartLayout="stackTotal"
+			self.yScaleMax=function(){
+				return 100;
+			}
+			self.categorySort= "none";
+			self.yScaleVals= [0,25,50,75,100];
+			self.groupSort=self.legendItemsArray;
+			self.YTickLabel= [[gettext(""),gettext("%")]];
+		}
 		if (this.quarterFormat){
 			this.dateFormat = this.quarterFormater
 		}

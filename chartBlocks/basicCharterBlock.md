@@ -63,7 +63,13 @@
 //			tipTemplate:Reuters.Graphics.Template.tooltip,
 //			chartTemplate:Reuters.Graphics.Template.chartTemplate,
 //			legendTemplate: Reuters.Graphics.Template.legendTemplate,
-//			timelineTemplate:Reuters.Graphics.Template.tooltipTimeline,		
+//			timelineTemplate:Reuters.Graphics.Template.tooltipTimeline,	
+//			isPoll:true,
+//			moeColumn:"ci",
+//			leftBarCol:"contact",
+//			rightBarCol:"leaks",
+//			centerCol:"dk",
+	
 		});
 
 

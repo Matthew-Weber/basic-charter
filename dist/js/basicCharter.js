@@ -2699,6 +2699,23 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		_.each(opts, function (item, key) {
 			self[key] = item;
 		});
+		if (self.isPoll) {
+			self.moeLabelObj = self.columnNames;
+			self.options.colors[self.centerCol] = "none";
+			self.colors[self.centerCol] = "none";
+			self.legendItemsArray = [self.rightBarCol, self.centerCol, self.leftBarCol];
+			self.hasLegend = false;
+			self.options.hasLegend = false;
+			self.horizontal = true;
+			self.chartLayout = "stackTotal";
+			self.yScaleMax = function () {
+				return 100;
+			};
+			self.categorySort = "none";
+			self.yScaleVals = [0, 25, 50, 75, 100];
+			self.groupSort = self.legendItemsArray;
+			self.YTickLabel = [[gettext(""), "%"]];
+		}
 		if (this.quarterFormat) {
 			this.dateFormat = this.quarterFormater;
 		}
@@ -4884,6 +4901,10 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 
 		//add teh zero line on top.
 		self.makeZeroLine();
+		if (self.isPoll) {
+			self.addMoe();
+		}
+
 		self.trigger("renderChart:end");
 		self.trigger("chart:loaded");
 
@@ -4959,8 +4980,87 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			return self.barHeight(d);
 		});
 
+		if (self.isPoll) {
+			self.updateMoe();
+		}
+
 		self.trigger("update:end");
 		//end of update
+	},
+	updateMoe: function updateMoe() {
+		var self = this;
+		self.addMoe.transition().duration(1000).attr("height", function (d, i, j) {
+			return self.barWidth(d, i, j);
+		}).attr("y", function (d, i, j) {
+			return self.xBarPosition(d, i, j);
+		}).attr("x", function (d) {
+			if (d.name == self.leftBarCol) {
+				return self.scales.y(d["y1Total"]) - self.scales.y(d[self.moeColumn]);
+			}
+			return self.scales.y(d["y0Total"]) - self.scales.y(d[self.moeColumn]);
+		}).attr("width", function (d) {
+			return self.scales.y(d[self.moeColumn] * 2);
+		});
+
+		self.addMoeLabels.transition().duration(1000).attr("x", function (d, i) {
+			if (i == 0) {
+				return 0;
+			}
+			return self.width;
+		});
+	},
+
+	addMoe: function addMoe() {
+		var self = this;
+
+		self.moeChart = self.svg.selectAll(".moeChart").data(self.jsonData, function (d) {
+			return d.name;
+		}).enter().append("g").attr("clip-path", "url(#clip" + self.targetDiv + ")").attr("class", "moeChart");
+
+		self.addMoe = self.moeChart.selectAll(".moebar").data(function (d) {
+			return d.values;
+		}).enter().append("rect").attr("class", "moebar").style("fill", function (d) {
+
+			var color = self.colorScale(d.name);
+			var strokecolor = d3.rgb(color).darker(0.8);
+			self.t = textures.lines().size(8).orientation("2/8").stroke(strokecolor);
+			self.tother = textures.lines().size(8).orientation("6/8").stroke(strokecolor);
+			self.svg.call(self.t);
+			self.svg.call(self.tother);
+
+			if (d.name == self.centerCol) {
+				return "none";
+			}
+			if (d.name == self.leftBarCol) {
+				return self.tother.url();
+			}
+			return self.t.url();
+		}).attr("height", function (d, i, j) {
+			return self.barWidth(d, i, j);
+		}).attr("y", function (d, i, j) {
+			return self.xBarPosition(d, i, j);
+		}).attr("x", function (d) {
+			if (d.name == self.leftBarCol) {
+				return self.scales.y(d["y1Total"]) - self.scales.y(d[self.moeColumn]);
+			}
+			return self.scales.y(d["y0Total"]) - self.scales.y(d[self.moeColumn]);
+		}).attr("width", function (d) {
+			return self.scales.y(d[self.moeColumn]) * 2;
+		});
+
+		self.addMoeLabels = self.svg.selectAll("moeLabels").data([self.moeLabelObj[self.leftBarCol], self.moeLabelObj[self.rightBarCol]]).enter().append("text").text(function (d) {
+			return d;
+		}).attr("x", function (d, i) {
+			if (i == 0) {
+				return 0;
+			}
+			return self.width;
+		}).attr("text-anchor", function (d, i) {
+			if (i == 0) {
+				return "start";
+			}
+			return "end";
+		}).attr("dy", -4).style("font-size", ".8rem").style("text-transform", "uppercase");
 	}
 
 	//end of mdoel

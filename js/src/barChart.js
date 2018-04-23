@@ -405,19 +405,30 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 	    self.addMoe
 	    	.transition()
 	    	.duration(1000)
-			.attr("height", function(d,i,j){ return self.barWidth(d,i,j); }) 
-			.attr("y", function (d,i,j){					  					  				  	
+			.attr(self.widthOrHeight, function(d,i,j){ return self.barWidth(d,i,j); }) 
+			.attr(self.xOrY, function (d,i,j){					  					  				  	
 				return self.xBarPosition(d,i,j);
 			})
-			.attr("x", function(d){
+			.attr(self.yOrX, function(d){
+				if (!self.leftBarCol){
+					if (self.horizontal){
+						return self.scales.y(d[self.dataType]) - (self.scales.y(d[self.moeColumn]));						
+					}
+					return self.scales.y(d[self.dataType] + parseFloat(d[self.moeColumn]))
+				}			
 				if (d.name == self.leftBarCol){
 					return self.scales.y(d["y1Total"]) - (self.scales.y(d[self.moeColumn]));					
 				} 
 				return self.scales.y(d["y0Total"]) - (self.scales.y(d[self.moeColumn]));
 			})
-			.attr("width", function(d){ 
-				return self.scales.y(d[self.moeColumn]*2)
+			.attr(self.heightOrWidth, function(d){ 
+				if (self.horizontal){
+					return self.scales.y(d[self.moeColumn]*2)
+				}
+				return Math.abs(self.scales.y(d[self.moeColumn]*2) - self.scales.y(0) )
 			});	
+
+		if (!self.leftBarCol){return}
 
 		self.addMoeLabels
 	    	.transition()
@@ -444,38 +455,55 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 			.attr("class", "moeChart")
 
 
-		self.addMoe = self.moeChart.selectAll(".moebar").data(function (d) {
-			return d.values;
-		}).enter().append("rect").attr("class", "moebar").style("fill", function (d) {
-
-			var color = self.colorScale(d.name)
-	        var strokecolor = d3.rgb(color).darker(0.8);
-			self.t = textures.lines().size(8).orientation("2/8").stroke(strokecolor);
-			self.tother = textures.lines().size(8).orientation("6/8").stroke(strokecolor);
-			self.svg.call(self.t);
-			self.svg.call(self.tother);
-
-
-			if (d.name == self.centerCol) {
-				return "none";
-			}
-			if (d.name == self.leftBarCol) {
-				return self.tother.url();
-			}
-			return self.t.url();
-		}).attr("height", function (d, i, j) {
-			return self.barWidth(d, i, j);
-		}).attr("y", function (d, i, j) {
-			return self.xBarPosition(d, i, j);
-		}).attr("x", function (d) {
-			if (d.name == self.leftBarCol) {
-				return self.scales.y(d["y1Total"]) - self.scales.y(d[self.moeColumn]);
-			}
-			return self.scales.y(d["y0Total"]) - self.scales.y(d[self.moeColumn]);
-		}).attr("width", function (d) {
-			return self.scales.y(d[self.moeColumn])*2;
-		});
-		
+		self.addMoe = self.moeChart.selectAll(".moebar")
+			.data(function (d) {
+				return d.values;
+			})
+			.enter().append("rect")
+			.attr("class", "moebar")
+			.style("fill", function (d) {
+	
+				var color = self.colorScale(d.name)
+		        var strokecolor = d3.rgb(color).darker(0.8);
+				self.t = textures.lines().size(7).orientation("2/8").stroke(strokecolor);
+				self.tother = textures.lines().size(7).orientation("6/8").stroke(strokecolor);
+				self.svg.call(self.t);
+				self.svg.call(self.tother);
+	
+	
+				if (d.name == self.centerCol) {
+					return "none";
+				}
+				if (d.name == self.leftBarCol) {
+					return self.tother.url();
+				}
+				return self.t.url();
+			})
+			.attr(self.widthOrHeight, function (d, i, j) {
+				return self.barWidth(d, i, j);
+			})
+			.attr(self.xOrY, function (d, i, j) {
+				return self.xBarPosition(d, i, j);
+			})
+			.attr(self.yOrX, function (d) {
+				if (!self.leftBarCol){
+					if (self.horizontal){
+						return self.scales.y(d[self.dataType]) - (self.scales.y(d[self.moeColumn]));						
+					}
+					return self.scales.y(d[self.dataType] + parseFloat(d[self.moeColumn]))
+				}
+				if (d.name == self.leftBarCol) {
+					return self.scales.y(d["y1Total"]) - self.scales.y(d[self.moeColumn]);
+				}
+				return self.scales.y(d["y0Total"]) - self.scales.y(d[self.moeColumn]);
+			})
+			.attr(self.heightOrWidth, function(d){ 
+				if (self.horizontal){
+					return self.scales.y(d[self.moeColumn]*2)
+				}
+				return Math.abs(self.scales.y(d[self.moeColumn]*2) - self.scales.y(0) )
+			})		
+		if (!self.leftBarCol){return}
 		self.addMoeLabels = self.svg.selectAll("moeLabels")
 			.data([self.moeLabelObj[self.leftBarCol], self.moeLabelObj[self.rightBarCol]])
 			.enter()

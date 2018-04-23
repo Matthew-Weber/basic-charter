@@ -2699,7 +2699,11 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		_.each(opts, function (item, key) {
 			self[key] = item;
 		});
-		if (self.isPoll) {
+
+		if (self.isPoll && self.chartType == "line") {
+			self.chartLayout = "fillLines";
+		}
+		if (self.isPoll && self.chartType != "line" && self.leftBarCol) {
 			self.moeLabelObj = self.columnNames;
 			self.options.colors[self.centerCol] = "none";
 			self.colors[self.centerCol] = "none";
@@ -4218,6 +4222,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			}
 			return self.scales.x(d[theScale]);
 		})[self.yOrX + "0"](function (d) {
+			if (self.isPoll) {
+				return self.scales.y(d[self.dataType] - parseFloat(d[self.moeColumn]));
+			}
 			if (self.chartLayout == "stackTotal") {
 				return self.scales.y(d.y0Total);
 			} else {
@@ -4228,6 +4235,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 				}
 			}
 		})[self.yOrX + "1"](function (d) {
+			if (self.isPoll) {
+				return self.scales.y(d[self.dataType] + parseFloat(d[self.moeColumn]));
+			}
 			if (self.chartLayout == "stackTotal") {
 				return self.scales.y(d.y1Total);
 			} else {
@@ -4294,7 +4304,12 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend({
 			};
 		});
 
-		self.lineChart.append("path").attr("class", "area").style("fill", function (d) {
+		self.lineChart.append("path").attr("class", function (d) {
+			if (self.isPoll) {
+				return "area pollArea";
+			}
+			return "area";
+		}).style("fill", function (d) {
 			return self.colorScale(d.name);
 		}).attr("d", function (d) {
 			return self.area(d.values[0]);
@@ -4989,18 +5004,31 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 	},
 	updateMoe: function updateMoe() {
 		var self = this;
-		self.addMoe.transition().duration(1000).attr("height", function (d, i, j) {
+		self.addMoe.transition().duration(1000).attr(self.widthOrHeight, function (d, i, j) {
 			return self.barWidth(d, i, j);
-		}).attr("y", function (d, i, j) {
+		}).attr(self.xOrY, function (d, i, j) {
 			return self.xBarPosition(d, i, j);
-		}).attr("x", function (d) {
+		}).attr(self.yOrX, function (d) {
+			if (!self.leftBarCol) {
+				if (self.horizontal) {
+					return self.scales.y(d[self.dataType]) - self.scales.y(d[self.moeColumn]);
+				}
+				return self.scales.y(d[self.dataType] + parseFloat(d[self.moeColumn]));
+			}
 			if (d.name == self.leftBarCol) {
 				return self.scales.y(d["y1Total"]) - self.scales.y(d[self.moeColumn]);
 			}
 			return self.scales.y(d["y0Total"]) - self.scales.y(d[self.moeColumn]);
-		}).attr("width", function (d) {
-			return self.scales.y(d[self.moeColumn] * 2);
+		}).attr(self.heightOrWidth, function (d) {
+			if (self.horizontal) {
+				return self.scales.y(d[self.moeColumn] * 2);
+			}
+			return Math.abs(self.scales.y(d[self.moeColumn] * 2) - self.scales.y(0));
 		});
+
+		if (!self.leftBarCol) {
+			return;
+		}
 
 		self.addMoeLabels.transition().duration(1000).attr("x", function (d, i) {
 			if (i == 0) {
@@ -5023,8 +5051,8 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 
 			var color = self.colorScale(d.name);
 			var strokecolor = d3.rgb(color).darker(0.8);
-			self.t = textures.lines().size(8).orientation("2/8").stroke(strokecolor);
-			self.tother = textures.lines().size(8).orientation("6/8").stroke(strokecolor);
+			self.t = textures.lines().size(7).orientation("2/8").stroke(strokecolor);
+			self.tother = textures.lines().size(7).orientation("6/8").stroke(strokecolor);
 			self.svg.call(self.t);
 			self.svg.call(self.tother);
 
@@ -5035,19 +5063,30 @@ Reuters.Graphics.BarChart = Reuters.Graphics.ChartBase.extend({
 				return self.tother.url();
 			}
 			return self.t.url();
-		}).attr("height", function (d, i, j) {
+		}).attr(self.widthOrHeight, function (d, i, j) {
 			return self.barWidth(d, i, j);
-		}).attr("y", function (d, i, j) {
+		}).attr(self.xOrY, function (d, i, j) {
 			return self.xBarPosition(d, i, j);
-		}).attr("x", function (d) {
+		}).attr(self.yOrX, function (d) {
+			if (!self.leftBarCol) {
+				if (self.horizontal) {
+					return self.scales.y(d[self.dataType]) - self.scales.y(d[self.moeColumn]);
+				}
+				return self.scales.y(d[self.dataType] + parseFloat(d[self.moeColumn]));
+			}
 			if (d.name == self.leftBarCol) {
 				return self.scales.y(d["y1Total"]) - self.scales.y(d[self.moeColumn]);
 			}
 			return self.scales.y(d["y0Total"]) - self.scales.y(d[self.moeColumn]);
-		}).attr("width", function (d) {
-			return self.scales.y(d[self.moeColumn]) * 2;
+		}).attr(self.heightOrWidth, function (d) {
+			if (self.horizontal) {
+				return self.scales.y(d[self.moeColumn] * 2);
+			}
+			return Math.abs(self.scales.y(d[self.moeColumn] * 2) - self.scales.y(0));
 		});
-
+		if (!self.leftBarCol) {
+			return;
+		}
 		self.addMoeLabels = self.svg.selectAll("moeLabels").data([self.moeLabelObj[self.leftBarCol], self.moeLabelObj[self.rightBarCol]]).enter().append("text").text(function (d) {
 			return d;
 		}).attr("x", function (d, i) {

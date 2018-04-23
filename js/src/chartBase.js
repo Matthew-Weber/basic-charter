@@ -76,7 +76,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		_.each(opts, function(item, key){
 			self[key] = item;
 		});	
-		if (self.isPoll){
+
+		if (self.isPoll && self.chartType == "line"){self.chartLayout = "fillLines";}		
+		if (self.isPoll && self.chartType != "line" && self.leftBarCol){
 			self.moeLabelObj = self.columnNames;
 			self.options.colors[self.centerCol] = "none";
 			self.colors[self.centerCol] = "none";

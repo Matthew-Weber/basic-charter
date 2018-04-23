@@ -123,6 +123,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		    	return self.scales.x(d[theScale]); 		    	
 	    	})
 		    [self.yOrX+"0"](function(d) { 
+			    if (self.isPoll){
+			    	return self.scales.y(d[self.dataType] - parseFloat(d[self.moeColumn]))				    
+			    }
 		    	if (self.chartLayout == "stackTotal"){
 		    		return self.scales.y(d.y0Total); 		    	
 		    	}else {
@@ -130,6 +133,9 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 		    	}
 		    })
 		    [self.yOrX+"1"](function(d) {
+			    if (self.isPoll){
+			    	return self.scales.y(d[self.dataType] + parseFloat(d[self.moeColumn]))
+			    }			    
 		    	if (self.chartLayout == "stackTotal"){
 		    		return self.scales.y(d.y1Total); 		    	
 		    	}else {
@@ -199,7 +205,10 @@ Reuters.Graphics.LineChart = Reuters.Graphics.ChartBase.extend ({
 			});			  				  	
 		
 		self.lineChart.append("path")
-			.attr("class", "area")
+			.attr("class", function(d){
+				if (self.isPoll){return "area pollArea"}
+				return "area"
+			})
 			.style("fill", function(d) { return self.colorScale(d.name); })
 			.attr("d", function(d) {return self.area(d.values[0]); })
 			.style("display", function(d){

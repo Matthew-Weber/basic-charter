@@ -1331,9 +1331,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			self.xAxis.ticks(self[self.xOrY + "ScaleTicks"]);
 		}
 
-		if (self.updateCount == 1){
+		//if (self.updateCount == 1){
 			self.adjustXTicks();			
-		}
+		//}
 
 		// update the axes,   
 		self.svg.selectAll(".x.axis")

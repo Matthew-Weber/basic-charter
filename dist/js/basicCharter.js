@@ -3713,7 +3713,7 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	adjustXTicks: function adjustXTicks() {
 		var self = this;
 
-		var ticksWidth = 0;
+		var ticksWidth = 20;
 		$("#" + self.targetDiv + " .x.axis .tick").find("text").each(function (d) {
 			ticksWidth += $(this).width() + 5;
 		});

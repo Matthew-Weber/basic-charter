@@ -3713,10 +3713,17 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 	adjustXTicks: function adjustXTicks() {
 		var self = this;
 
-		var ticksWidth = 20;
+		var ticksWidth = 0;
+		var largest = 0;
+		var count = 0;
 		$("#" + self.targetDiv + " .x.axis .tick").find("text").each(function (d) {
-			ticksWidth += $(this).width() + 5;
+			if ($(this).width() + 5 > largest) {
+				largest = $(this).width() + 5;
+			}
+			count++;
 		});
+		ticksWidth = count * largest;
+
 		if (self.tickAll) {
 			self[self.xOrY + "Axis"].tickValues(self.fullDateDomain);
 		}

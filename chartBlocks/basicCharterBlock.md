@@ -82,8 +82,8 @@
 					
 			        {
 			          note: {
-			            label: "Basic settings with subject position(x,y) and a note offset(dx, dy)",
-			            title: "basic",
+			            label: gettext("Basic settings with subject position(x,y) and a note offset(dx, dy)"),
+			            title: gettext("basic"),
 			            wrap:150,
 						//dyOffset:0.8,	            
 						//dyOffsetLabel:-0.8,
@@ -96,8 +96,8 @@
 			        
 			        {
 			          note: {
-			            label: "Added connector end 'arrow', note wrap '180', and note align 'left'",
-			            title: "Arrow", // commenting this out will make no title
+			            label: gettext("Added connector end 'arrow', note wrap '180', and note align 'left'"),
+			            title: gettext("Arrow"), // commenting this out will make no title
 			            wrap: 150, // how wide do you want it to be
 						//dyOffset:0.8,	            
 			            align: "left" // will the blurb be centered at the connection point, or left or right aligned?
@@ -115,8 +115,8 @@
 			        
 			        {
 			          note: {
-			            label: "Changed connector type to 'curve'",
-			            title: "dot and curve",
+			            label: gettext("Changed connector type to 'curve'"),
+			            title: gettext("dot and curve"),
 			            wrap: 0,
 						//dyOffset:0.8,	            
 			          },
@@ -133,8 +133,8 @@
 			        {
 			          type: d3.annotationCalloutCircle, // this sets as a circle
 			          note: {
-			            label: "A different annotation type",
-			            title: "It's a circle",
+			            label: gettext("A different annotation type"),
+			            title: gettext("It's a circle"),
 			            wrap: 100,
 						//dyOffset:0.8,	            			            
 			            align: "middle"		            
@@ -152,8 +152,8 @@
 					{
 			          type: d3.annotationXYThreshold,	 //vertical line			
 					  note: {
-					    label: "Longer text to show text wrapping",
-					    title: "Vertical Line"
+					    label: gettext("Longer text to show text wrapping"),
+					    title: gettext("Vertical Line")
 					  },
 			          data:{date:"03/21/2016",yvalue:980},
 					  dy: 0,
@@ -168,8 +168,8 @@
 					{
 			          type: d3.annotationXYThreshold,	// horizontal line			
 					  note: {
-					    label: "Longer text to show text wrapping",
-					    title: "Horizontal Line"
+					    label: gettext("Longer text to show text wrapping"),
+					    title: gettext("Horizontal Line")
 					  },
 			          data:{date:"03/21/2016",yvalue:470},
 					  dy: 0,
@@ -184,7 +184,7 @@
 			        {
 				      type:d3.annotationCalloutRect,
 			          note: {
-			            label: "Basic settings with subject position(x,y) and a note offset(dx, dy)",
+			            label: gettext("Basic settings with subject position(x,y) and a note offset(dx, dy)"),
 			            wrap:150,
 						//"align":"end",			            
 			          },

@@ -2433,11 +2433,12 @@ Reuters.Graphics.DataSeriesModel = Backbone.Model.extend({
 		var firstValue = parseFloat(firstItem.get(name));
 
 		self.get("values").each(function (currentItemInLoop) {
+			var index = self.get("values").indexOf(currentItemInLoop);
 			var previousItem = self.get("values").at(self.get("values").indexOf(currentItemInLoop) - 1);
 			var currentValue = parseFloat(currentItemInLoop.get(name));
 			var change, percent;
 			//previousItem.get(name).value ?????
-			if (previousItem) {
+			if (index !== 0) {
 				var previousValue = currentValue;
 				if (previousItem.get(name)) {
 					if (previousItem.get(name).value) {

@@ -435,9 +435,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 			self.labelAdder();
 		}
 		
-		$(window).scroll(_.debounce(function () {
-			self.scrollAnimate();
-		}, 100));
+		$(window).scroll(function(){
+            self.scrollAnimate();
+        });
 				
 		$(window).on("resize", _.debounce(function(event) {
 			var width = self.$el.width();

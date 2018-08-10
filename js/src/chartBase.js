@@ -61,7 +61,10 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 				return quarters[monthformat(d)] +yearformat(d)
 	},
 	xTickFormat:Reuters.CurrentLocale.timeFormat.multi([
-	    ["%H:%M", function(d) { return d.getMinutes(); }],
+	    ["%H:%M", function(d) { 
+			if (d.getMinutes() == 30 && d.getHours() == 0){return}
+		    return d.getMinutes(); 
+		    }],
 	    ["%H:%M", function(d) { return d.getHours(); }],
 	    ["%a %d", function(d) { return d.getDay() && d.getDate() != 1; }],
 	    ["%b %d", function(d) { return d.getDate() != 1; }],

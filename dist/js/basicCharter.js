@@ -2680,6 +2680,9 @@ Reuters.Graphics.ChartBase = Backbone.View.extend({
 		return quarters[monthformat(d)] + yearformat(d);
 	},
 	xTickFormat: Reuters.CurrentLocale.timeFormat.multi([["%H:%M", function (d) {
+		if (d.getMinutes() == 30 && d.getHours() == 0) {
+			return;
+		}
 		return d.getMinutes();
 	}], ["%H:%M", function (d) {
 		return d.getHours();

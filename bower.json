@@ -10,7 +10,7 @@
     "charter-commons": "https://github.com/Matthew-Weber/charter-commons.git#*",
     "textures": "1.0.5"
   }, 
-  "version": "0.0.58",
+  "version": "0.0.59",
    "ignore": [
     "/.*"
   ]

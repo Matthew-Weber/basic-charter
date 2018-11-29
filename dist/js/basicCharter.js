@@ -1062,6 +1062,55 @@
     return { components: [lineBuilder({ data: data, className: 'connector-end connector-arrow', classID: 'connector-end' })] };
   };
 
+  var connectorArrowOpen = function connectorArrowOpen(_ref) {
+    var annotation = _ref.annotation,
+        start = _ref.start,
+        end = _ref.end;
+
+    var offset = annotation.position;
+    if (!start) {
+      start = [annotation.dx, annotation.dy];
+    } else {
+      start = [-end[0] + start[0], -end[1] + start[1]];
+    }
+    if (!end) {
+      end = [annotation.x - offset.x, annotation.y - offset.y];
+    }
+
+    var x1 = end[0],
+        y1 = end[1];
+
+    var dx = start[0];
+    var dy = start[1];
+
+    var size = 10;
+    var angleOffset = 30 / 180 * Math.PI;
+    var angle = Math.atan(dy / dx);
+
+    if (dx < 0) {
+      angle += Math.PI;
+    }
+
+    var data = [[x1, y1], [Math.cos(angle + angleOffset) * size + x1, Math.sin(angle + angleOffset) * size + y1], [x1, y1], [Math.cos(angle - angleOffset) * size + x1, Math.sin(angle - angleOffset) * size + y1]];
+
+    //TODO add in reverse
+    // if (canvasContext.arrowReverse){
+    //   data = [[x1, y1], 
+    //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
+    //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
+    //   [x1, y1]
+    //   ]
+    // } else {
+    //   data = [[x1, y1], 
+    //   [Math.cos(angle + angleOffset)*size, Math.sin(angle + angleOffset)*size],
+    //   [Math.cos(angle - angleOffset)*size, Math.sin(angle - angleOffset)*size],
+    //   [x1, y1]
+    //   ]
+    // }
+
+    return { components: [lineBuilder({ data: data, className: 'connector-end connector-arrow', classID: 'connector-end' })] };
+  };
+
   var connectorDot = function connectorDot(_ref) {
     var line$$1 = _ref.line;
 
@@ -1506,6 +1555,14 @@
           end = connectorArrow({ annotation: this.annotation, start: s, end: e });
         } else if (endType === "dot") {
           end = connectorDot({ line: line$$1 });
+        } else if (endType === "arrow-open") {
+          var s = line$$1.data[1];
+          var e = line$$1.data[0];
+          var distance = Math.sqrt(Math.pow(s[0] - e[0], 2) + Math.pow(s[1] - e[1], 2));
+          if (distance < 5 && line$$1.data[2]) {
+            s = line$$1.data[2];
+          }
+          end = connectorArrowOpen({ annotation: this.annotation, start: s, end: e });
         }
 
         if (end.components) {
